@@ -1,13 +1,13 @@
-
+// simple class representing 2-dimensional vectors
 public class Vec2{
 
-	public float x, y;
+	public double x, y;
 	
 	public Vec2() 
 	{
 	}
 
-	public Vec2(float x, float y)
+	public Vec2(double x, double y)
 	{
 		this.x = x;
 		this.y = y;
@@ -17,7 +17,7 @@ public class Vec2{
 		set(other);
 	}
 	
-	public Vec2 set(float x, float y)
+	public Vec2 set(double x, double y)
 	{
 		this.x = x;
 		this.y = y;
@@ -47,7 +47,7 @@ public class Vec2{
 
 	public Vec2 normalize()
 	{
-		float len = length();
+		double len = length();
 		if (len != 0) 
 		{
 			x /= len;
@@ -56,40 +56,40 @@ public class Vec2{
 		return this;
 	}
 
-	public float dot(Vec2 v) 
+	public double dot(Vec2 v) 
 	{
 		return x * v.x + y * v.y;
 	}
 
-	public Vec2 scale(float factor)
+	public Vec2 scale(double factor)
 	{
 		x *= factor;
 		y *= factor;
 		return this;
 	}
 	
-	public float length() 
+	public double length() 
 	{
-		return (float) Math.sqrt(x*x + y*y);
+		return (double) Math.sqrt(x*x + y*y);
 	}
 
-	public float lengthSquared () 
+	public double lengthSquared () 
 	{
 		return x*x + y*y;
 	}
 	
-	public float distance(Vec2 other)
+	public double distance(Vec2 other)
 	{
-		float distX = x - other.x;
-		float distY = y - other.y;
-		return (float) Math.sqrt(distX*distX + distY*distY);
+		double distX = x - other.x;
+		double distY = y - other.y;
+		return (double) Math.sqrt(distX*distX + distY*distY);
 	}
 	
-	public float distance(float x, float y)
+	public double distance(double x, double y)
 	{
 		x -= this.x;
 		y -= this.y;
-		return (float) Math.sqrt(x*x + y*y);
+		return (double) Math.sqrt(x*x + y*y);
 	}
 
 	public String toString () 
