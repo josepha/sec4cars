@@ -19,5 +19,5 @@ public abstract class ParameterVisualization implements GLEventListener
 	public abstract void reshape(GLAutoDrawable drawable, int x, int y, int width, int height);
 	
 	// update method that is called every time a new value is added
-	public abstract void update(float newValue, float deltaTime);
+	public abstract void update(double newValue, double deltaTime);
 }
