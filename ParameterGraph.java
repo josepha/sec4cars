@@ -37,7 +37,7 @@ public class ParameterGraph extends ParameterVisualization
 	private Color axisColor;
 	
 	// constructors
-	public ParameterGraph(double minValue, double maxValue, double optimalValue, double timeFrame, Color bgColor, Color axisColor)
+	public ParameterGraph(double minValue, double maxValue, double optimalValue, double timeFrame, Color bgColor, Color axisColor, Color goodColor, Color badColor)
 	{
 		// maxValue has to be larger than minValue
 		assert(maxValue >= minValue && optimalValue >= minValue && optimalValue <= maxValue);
@@ -50,7 +50,7 @@ public class ParameterGraph extends ParameterVisualization
 		this.bgColor = bgColor;
 		this.axisColor = axisColor;
 		
-		this.mapper = new ColorMapper(optimalValue, minValue, maxValue, Interpolator.CUBIC_FIT, Color.GREEN, Color.ORANGE);
+		this.mapper = new ColorMapper(optimalValue, minValue, maxValue, Interpolator.CUBIC_FIT, goodColor, badColor);
 		
 		totalTime = 0;
 		timer = new FrameTimer();
@@ -61,7 +61,7 @@ public class ParameterGraph extends ParameterVisualization
 	// default colors
 	public ParameterGraph(double minValue, double maxValue, double optimalValue, double timeFrame)
 	{
-		this(minValue, maxValue, optimalValue, timeFrame, Color.DARK_GRAY, Color.WHITE);
+		this(minValue, maxValue, optimalValue, timeFrame, Color.DARK_GRAY, Color.WHITE, Color.YELLOW, Color.YELLOW);
 	}
 	
 	// centered around y-axis

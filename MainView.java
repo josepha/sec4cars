@@ -24,6 +24,8 @@ import com.jogamp.opengl.util.FPSAnimator;
 // TODO: why is JScrollPane not scrolling?
 public class MainView extends JFrame
 {
+	private static final long serialVersionUID = 1L;
+
 	// graph panel
 	private JPanel graphPanel;
 	
@@ -47,6 +49,7 @@ public class MainView extends JFrame
 		
 		graphPanel = new JPanel();
 		graphPanel.setLayout( new BoxLayout(graphPanel, BoxLayout.Y_AXIS) );
+		graphListPane = new JScrollPane(graphPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		
 		GLProfile glprofile = GLProfile.getDefault();
         GLCapabilities glcapabilities = new GLCapabilities( glprofile );
@@ -81,7 +84,6 @@ public class MainView extends JFrame
 		dataRoot.add(environment);
 
 		// setup split pane
-        graphListPane = new JScrollPane(graphPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, dataBlocksTree, graphListPane);
         mainSplitPane.setDividerLocation(130);
         mainSplitPane.setContinuousLayout(true);
