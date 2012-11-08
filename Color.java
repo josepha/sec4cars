@@ -9,8 +9,10 @@ public class Color
 	public static final Color RED = new Color(1, 0, 0);
 	public static final Color GREEN = new Color(0, 1, 0);
 	public static final Color BLUE = new Color(0, 0, 1);
-	public static final Color DARKGRAY = new Color(0.25f, 0.25f, 0.25f);
-	public static final Color LIGHTGRAY = new Color(0.75f, 0.75f, 0.75f);
+	public static final Color YELLOW = new Color(1, 1, 0);
+	public static final Color ORANGE = new Color(1, 0.5f, 0);
+	public static final Color DARK_GRAY = new Color(0.25f, 0.25f, 0.25f);
+	public static final Color LIGHT_GRAY = new Color(0.75f, 0.75f, 0.75f);
 	
 	public float red;
 	public float green;
@@ -41,6 +43,22 @@ public class Color
 		this.green = other.green;
 		this.blue = other.blue;
 		this.alpha = other.alpha;
+	}
+	
+	public Color interpolate(Color other, Interpolator interpol, double t)
+	{
+		assert(0 <= t && t <= 1);
+		float mappedT = (float) interpol.map(t);
+		return new Color((1-mappedT) * this.red + mappedT * other.red,
+						 (1-mappedT) * this.green + mappedT * other.green,
+						 (1-mappedT) * this.blue + mappedT * other.blue,
+						 (1-mappedT) * this.alpha + mappedT * other.alpha);
+	}
+	
+	public Color interpolate(Color other, double t)
+	{
+		return interpolate(other, Interpolator.LINEAR, t);
+
 	}
 	
 	public void setClearColor(GL gl)
