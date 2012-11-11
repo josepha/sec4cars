@@ -5,9 +5,12 @@ import java.awt.Dimension;
 import javax.media.opengl.GLCapabilities;
 import javax.media.opengl.GLProfile;
 import javax.media.opengl.awt.GLJPanel;
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
@@ -15,6 +18,8 @@ import javax.swing.JSplitPane;
 import javax.swing.JTree;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.tree.DefaultMutableTreeNode;
+//import javax.swing.*;
+//import javax.swing.tree.DefaultMutableTreeNode;
 
 import com.jogamp.opengl.util.FPSAnimator;
 
@@ -29,12 +34,6 @@ public class MainView extends JFrame
 	// graph panel
 	private JPanel graphPanel;
 	
-	// primary split pane
-	JSplitPane mainSplitPane;
-	
-	// scrollpane holding the visualizations
-	JScrollPane graphListPane;
-	
 	// tree containing car data types
 	private JTree dataBlocksTree;
 	
@@ -43,13 +42,14 @@ public class MainView extends JFrame
 		super(title);
 		setSize(1024, 768);
 		Container contentPane = this.getContentPane();
-		setExtendedState(JFrame.MAXIMIZED_BOTH);
+		//setExtendedState(JFrame.MAXIMIZED_BOTH);
 		// quit program when window is closed
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		graphPanel = new JPanel();
 		graphPanel.setLayout( new BoxLayout(graphPanel, BoxLayout.Y_AXIS) );
-		graphListPane = new JScrollPane(graphPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		// scrollpane holding the visualizations
+		JScrollPane graphListPane = new JScrollPane(graphPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		
 		GLProfile glprofile = GLProfile.getDefault();
         GLCapabilities glcapabilities = new GLCapabilities( glprofile );
@@ -82,9 +82,76 @@ public class MainView extends JFrame
 		dataRoot.add(engine);
 		dataRoot.add(tires);
 		dataRoot.add(environment);
+		
+		JLabel auswahlLabel = new JLabel("Auswahl");
+		JButton auswahlanzeigenButton = new JButton("anzeigen");
+		JButton auswahlloeschenButton = new JButton("löschen");
+		JLabel aufnahmeLabel = new JLabel("Aufnehmen");
+		JButton aufnahmeButton = new JButton("starten");
+		JLabel anzeigeLabel = new JLabel("Anzeige");
+		JButton anzeigeButton = new JButton("single");
+		anzeigeButton.setAlignmentX(LEFT_ALIGNMENT);
+		JLabel einstellungenLabel = new JLabel("Einstellungen");
+		JButton einstellungenladenButton = new JButton("laden");
+		JButton einstellungenspeichernButton = new JButton("speichern");
+		
+		JLabel empty1= new JLabel("   ");
+		JLabel empty2 = new JLabel("   ");		
+		
+		JPanel buttonsRightPanel = new JPanel();
+		buttonsRightPanel.setLayout(new BoxLayout(buttonsRightPanel, BoxLayout.PAGE_AXIS));
+		
+		JPanel buttonsLeftPanel = new JPanel();
+		buttonsLeftPanel.setLayout(new BoxLayout(buttonsLeftPanel, BoxLayout.PAGE_AXIS));
+		buttonsLeftPanel.setBorder(BorderFactory.createEmptyBorder(0,0,0,10));
+		
+		buttonsLeftPanel.add(auswahlLabel);
+		buttonsLeftPanel.add(Box.createRigidArea(new Dimension(0,5)));
+		buttonsLeftPanel.add(auswahlanzeigenButton);
+		buttonsLeftPanel.add(Box.createRigidArea(new Dimension(0,5)));
+		buttonsLeftPanel.add(aufnahmeLabel);
+		buttonsLeftPanel.add(Box.createRigidArea(new Dimension(0,5)));
+		buttonsLeftPanel.add(aufnahmeButton);
+		buttonsLeftPanel.add(Box.createRigidArea(new Dimension(0,5)));
+		buttonsLeftPanel.add(einstellungenLabel);
+		buttonsLeftPanel.add(Box.createRigidArea(new Dimension(0,5)));
+		buttonsLeftPanel.add(einstellungenladenButton);
+		
+		buttonsRightPanel.add(empty1);
+		buttonsRightPanel.add(Box.createRigidArea(new Dimension(0,5)));
+		buttonsRightPanel.add(auswahlloeschenButton);
+		buttonsRightPanel.add(Box.createRigidArea(new Dimension(0,5)));
+		buttonsRightPanel.add(anzeigeLabel);
+		buttonsRightPanel.add(Box.createRigidArea(new Dimension(0,5)));
+		buttonsRightPanel.add(anzeigeButton);
+		buttonsRightPanel.add(Box.createRigidArea(new Dimension(0,5)));
+		buttonsRightPanel.add(empty2);
+		buttonsRightPanel.add(Box.createRigidArea(new Dimension(0,5)));
+		buttonsRightPanel.add(einstellungenspeichernButton);
+		
+		JPanel buttonsPanel = new JPanel();
+		buttonsPanel.setAlignmentX(LEFT_ALIGNMENT);
+		buttonsPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+		buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.LINE_AXIS));
+		buttonsPanel.add(buttonsLeftPanel);
+		buttonsPanel.add(buttonsRightPanel);
+		
+		JPanel treePanel = new JPanel();
+		//treePanel.setAlignmentX(LEFT_ALIGNMENT);
+		treePanel.add(dataBlocksTree);
+		
+		JPanel leftContainer = new JPanel();
+		leftContainer.setLayout(new BoxLayout(leftContainer, BoxLayout.PAGE_AXIS));		
+		//JPanel rightContainer = new JPanel();
+		
+		leftContainer.add(treePanel);
+		leftContainer.add(buttonsPanel);
+		
+	    //rightContainer.add(graphListPane);
 
 		// setup split pane
-        mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, dataBlocksTree, graphListPane);
+        //mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, dataBlocksTree, graphListPane);
+		JSplitPane  mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftContainer, graphListPane);//rightContainer);
         mainSplitPane.setDividerLocation(130);
         mainSplitPane.setContinuousLayout(true);
 
