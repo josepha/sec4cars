@@ -68,32 +68,80 @@ public class MainView extends JFrame
 	    }
 
 		// fill tree
-		DefaultMutableTreeNode dataRoot = new DefaultMutableTreeNode("DataBlocks");
+		DefaultMutableTreeNode dataRoot = new DefaultMutableTreeNode("Steuergeräte");
 		dataBlocksTree = new JTree(dataRoot);
-		DefaultMutableTreeNode general = new DefaultMutableTreeNode("General");
-		general.add(new DefaultMutableTreeNode("stuff"));
-		DefaultMutableTreeNode engine = new DefaultMutableTreeNode("Engine");
-		engine.add(new DefaultMutableTreeNode("stuff"));
-		DefaultMutableTreeNode tires = new DefaultMutableTreeNode("Tires");
-		tires.add(new DefaultMutableTreeNode("stuff"));
-		DefaultMutableTreeNode environment = new DefaultMutableTreeNode("Environment");
-		environment.add(new DefaultMutableTreeNode("stuff"));
-		dataRoot.add(general);
-		dataRoot.add(engine);
-		dataRoot.add(tires);
-		dataRoot.add(environment);
+		DefaultMutableTreeNode j623_01 = new DefaultMutableTreeNode("J623 Motorsteuergerät");
+		DefaultMutableTreeNode j624_02 = new DefaultMutableTreeNode("J624 Motorsteuergerät 2");
+		DefaultMutableTreeNode j104_03 = new DefaultMutableTreeNode("J104 ABS");
+		DefaultMutableTreeNode j234_04 = new DefaultMutableTreeNode("J234 Airbag");
+		DefaultMutableTreeNode j217_05 = new DefaultMutableTreeNode("J217 automatisches Getriebe");
+		DefaultMutableTreeNode j431_06 = new DefaultMutableTreeNode("J431 Leuchtweitenregelung");
+		DefaultMutableTreeNode j197_07 = new DefaultMutableTreeNode("J197 Niveauregelung");
+		DefaultMutableTreeNode j502_08 = new DefaultMutableTreeNode("J502 Reifendruckkontrolle");
+		DefaultMutableTreeNode j518_09 = new DefaultMutableTreeNode("J518 Zugang und Startberechtigung");
 		
-		JLabel auswahlLabel = new JLabel("Auswahl");
+		DefaultMutableTreeNode j01_m00x_0x = new DefaultMutableTreeNode("00x/x Engine Speed Sensor");
+		DefaultMutableTreeNode j01_m00y_0x = new DefaultMutableTreeNode("00x/x Mass Airflow Sensor");
+//		DefaultMutableTreeNode j623_m001 = new DefaultMutableTreeNode("Intake manifold pressure");
+//		DefaultMutableTreeNode j623_m001 = new DefaultMutableTreeNode("Messblock 001");
+//		DefaultMutableTreeNode j623_m001 = new DefaultMutableTreeNode("Messblock 001");
+//		DefaultMutableTreeNode j623_m001 = new DefaultMutableTreeNode("Messblock 001");
+//		general.add(new DefaultMutableTreeNode("stuff"));
+//		DefaultMutableTreeNode engine = new DefaultMutableTreeNode("Engine");
+//		engine.add(new DefaultMutableTreeNode("stuff"));
+//		DefaultMutableTreeNode tires = new DefaultMutableTreeNode("Tires");
+//		tires.add(new DefaultMutableTreeNode("stuff"));
+//		DefaultMutableTreeNode environment = new DefaultMutableTreeNode("Environment");
+//		environment.add(new DefaultMutableTreeNode("stuff"));
+//		dataRoot.add(general);
+//		dataRoot.add(engine);
+//		dataRoot.add(tires);
+//		dataRoot.add(environment);
+		j623_01.add(j01_m00x_0x);
+		j623_01.add(j01_m00y_0x);
+		dataRoot.add(j623_01);
+		dataRoot.add(j624_02);
+		dataRoot.add(j104_03);
+		dataRoot.add(j234_04);
+		dataRoot.add(j217_05);
+		dataRoot.add(j431_06);
+		dataRoot.add(j197_07);
+		dataRoot.add(j502_08);
+		dataRoot.add(j518_09);
+		dataBlocksTree.setMinimumSize(new Dimension(300,300));
+		dataBlocksTree.setPreferredSize(new Dimension(300,300));
+		dataBlocksTree.setMaximumSize(new Dimension(300,300));
+		
+		JLabel auswahlLabel = new JLabel(" Auswahl");
 		JButton auswahlanzeigenButton = new JButton("anzeigen");
+		//auswahlanzeigenButton.setPreferredSize(new Dimension(160, 160));
+		auswahlanzeigenButton.setMinimumSize(new Dimension(80,25));
+		auswahlanzeigenButton.setPreferredSize(new Dimension(80,25));
+		auswahlanzeigenButton.setMaximumSize(new Dimension(80,25));
 		JButton auswahlloeschenButton = new JButton("löschen");
-		JLabel aufnahmeLabel = new JLabel("Aufnehmen");
+		auswahlloeschenButton.setMinimumSize(new Dimension(80,25));
+		auswahlloeschenButton.setPreferredSize(new Dimension(80,25));
+		auswahlloeschenButton.setMaximumSize(new Dimension(80,25));
+		JLabel aufnahmeLabel = new JLabel(" Aufnehmen");
 		JButton aufnahmeButton = new JButton("starten");
-		JLabel anzeigeLabel = new JLabel("Anzeige");
+		aufnahmeButton.setMinimumSize(new Dimension(80,25));
+		aufnahmeButton.setPreferredSize(new Dimension(80,25));
+		aufnahmeButton.setMaximumSize(new Dimension(80,25));
+		JLabel anzeigeLabel = new JLabel(" Anzeige");
 		JButton anzeigeButton = new JButton("single");
-		anzeigeButton.setAlignmentX(LEFT_ALIGNMENT);
-		JLabel einstellungenLabel = new JLabel("Einstellungen");
+		anzeigeButton.setMinimumSize(new Dimension(80,25));
+		anzeigeButton.setPreferredSize(new Dimension(80,25));
+		anzeigeButton.setMaximumSize(new Dimension(80,25));
+		//anzeigeButton.setAlignmentX(LEFT_ALIGNMENT);
+		JLabel einstellungenLabel = new JLabel(" Einstellungen");
 		JButton einstellungenladenButton = new JButton("laden");
+		einstellungenladenButton.setMinimumSize(new Dimension(80,25));
+		einstellungenladenButton.setPreferredSize(new Dimension(80,25));
+		einstellungenladenButton.setMaximumSize(new Dimension(80,25));
 		JButton einstellungenspeichernButton = new JButton("speichern");
+		einstellungenspeichernButton.setMinimumSize(new Dimension(80,25));
+		einstellungenspeichernButton.setPreferredSize(new Dimension(80,25));
+		einstellungenspeichernButton.setMaximumSize(new Dimension(80,25));
 		
 		JLabel empty1= new JLabel("   ");
 		JLabel empty2 = new JLabel("   ");		
@@ -106,31 +154,34 @@ public class MainView extends JFrame
 		buttonsLeftPanel.setBorder(BorderFactory.createEmptyBorder(0,0,0,10));
 		
 		buttonsLeftPanel.add(auswahlLabel);
-		buttonsLeftPanel.add(Box.createRigidArea(new Dimension(0,5)));
+		buttonsLeftPanel.add(Box.createRigidArea(new Dimension(0,3)));
 		buttonsLeftPanel.add(auswahlanzeigenButton);
-		buttonsLeftPanel.add(Box.createRigidArea(new Dimension(0,5)));
+		buttonsLeftPanel.add(Box.createRigidArea(new Dimension(0,8)));
 		buttonsLeftPanel.add(aufnahmeLabel);
-		buttonsLeftPanel.add(Box.createRigidArea(new Dimension(0,5)));
+		buttonsLeftPanel.add(Box.createRigidArea(new Dimension(0,3)));
 		buttonsLeftPanel.add(aufnahmeButton);
-		buttonsLeftPanel.add(Box.createRigidArea(new Dimension(0,5)));
+		buttonsLeftPanel.add(Box.createRigidArea(new Dimension(0,8)));
 		buttonsLeftPanel.add(einstellungenLabel);
-		buttonsLeftPanel.add(Box.createRigidArea(new Dimension(0,5)));
+		buttonsLeftPanel.add(Box.createRigidArea(new Dimension(0,3)));
 		buttonsLeftPanel.add(einstellungenladenButton);
+		buttonsLeftPanel.add(Box.createRigidArea(new Dimension(0,20)));
 		
 		buttonsRightPanel.add(empty1);
-		buttonsRightPanel.add(Box.createRigidArea(new Dimension(0,5)));
+		buttonsRightPanel.add(Box.createRigidArea(new Dimension(0,3)));
 		buttonsRightPanel.add(auswahlloeschenButton);
-		buttonsRightPanel.add(Box.createRigidArea(new Dimension(0,5)));
+		buttonsRightPanel.add(Box.createRigidArea(new Dimension(0,8)));
 		buttonsRightPanel.add(anzeigeLabel);
-		buttonsRightPanel.add(Box.createRigidArea(new Dimension(0,5)));
+		buttonsRightPanel.add(Box.createRigidArea(new Dimension(0,3)));
 		buttonsRightPanel.add(anzeigeButton);
-		buttonsRightPanel.add(Box.createRigidArea(new Dimension(0,5)));
+		buttonsRightPanel.add(Box.createRigidArea(new Dimension(0,8)));
 		buttonsRightPanel.add(empty2);
-		buttonsRightPanel.add(Box.createRigidArea(new Dimension(0,5)));
+		buttonsRightPanel.add(Box.createRigidArea(new Dimension(0,3)));
 		buttonsRightPanel.add(einstellungenspeichernButton);
+		buttonsRightPanel.add(Box.createRigidArea(new Dimension(0,20)));
+
 		
 		JPanel buttonsPanel = new JPanel();
-		buttonsPanel.setAlignmentX(LEFT_ALIGNMENT);
+		buttonsPanel.setAlignmentX(RIGHT_ALIGNMENT);
 		buttonsPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 		buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.LINE_AXIS));
 		buttonsPanel.add(buttonsLeftPanel);
@@ -142,6 +193,7 @@ public class MainView extends JFrame
 		
 		JPanel leftContainer = new JPanel();
 		leftContainer.setLayout(new BoxLayout(leftContainer, BoxLayout.PAGE_AXIS));		
+		//leftContainer.setAlignmentX(RIGHT_ALIGNMENT);
 		//JPanel rightContainer = new JPanel();
 		
 		leftContainer.add(treePanel);
@@ -152,7 +204,7 @@ public class MainView extends JFrame
 		// setup split pane
         //mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, dataBlocksTree, graphListPane);
 		JSplitPane  mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftContainer, graphListPane);//rightContainer);
-        mainSplitPane.setDividerLocation(130);
+        mainSplitPane.setDividerLocation(200);
         mainSplitPane.setContinuousLayout(true);
 
         contentPane.add(mainSplitPane, BorderLayout.CENTER);
