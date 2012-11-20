@@ -4,7 +4,9 @@ import java.util.LinkedList;
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
-
+// plot of 2D point data
+// color mapping currently disabled
+// TODO: unse?
 public class ParameterGraph extends ParameterVisualization 
 {
 	private double totalTime;
@@ -21,23 +23,24 @@ public class ParameterGraph extends ParameterVisualization
 	// TODO: adjust value
 	private final double borderOffset = 0.1;
 	// utility to calculate time between frames
-	// TODO: move this somewhere it should rather be
 	// TODO: remove later on
 	private FrameTimer timer;
 	// points of the graph mapped to fit in value range
 	private LinkedList<Vec2> points;
 	// mapped colors for points
-	private LinkedList<Color> colors;
+	//private LinkedList<GraphColor> colors;
 
 	private GL2 gl;
 	
-	private ColorMapper mapper;
+	//private ColorMapper mapper;
 	
-	private Color bgColor;
-	private Color axisColor;
+	private GraphColor graphColor;
+	private GraphColor bgColor;
+	private GraphColor axisColor;
 	
 	// constructors
-	public ParameterGraph(double minValue, double maxValue, double optimalValue, double timeFrame, Color bgColor, Color axisColor, Color goodColor, Color badColor)
+	//public ParameterGraph(double minValue, double maxValue, double optimalValue, double timeFrame, GraphColor bgColor, GraphColor axisColor, GraphColor goodColor, GraphColor badColor)
+	public ParameterGraph(double minValue, double maxValue, double optimalValue, double timeFrame, GraphColor bgColor, GraphColor axisColor, GraphColor graphColor)
 	{
 		// maxValue has to be larger than minValue
 		assert(maxValue >= minValue && optimalValue >= minValue && optimalValue <= maxValue);
@@ -49,19 +52,20 @@ public class ParameterGraph extends ParameterVisualization
 		
 		this.bgColor = bgColor;
 		this.axisColor = axisColor;
+		this.graphColor = graphColor;
 		
-		this.mapper = new ColorMapper(optimalValue, minValue, maxValue, Interpolator.CUBIC_FIT, goodColor, badColor);
+		//this.mapper = new ColorMapper(optimalValue, minValue, maxValue, Interpolator.CUBIC_FIT, goodColor, badColor);
 		
 		totalTime = 0;
 		timer = new FrameTimer();
 		points = new LinkedList<Vec2>();
-		colors = new LinkedList<Color>();
+		//colors = new LinkedList<GraphColor>();
 	}
 	
 	// default colors
 	public ParameterGraph(double minValue, double maxValue, double optimalValue, double timeFrame)
 	{
-		this(minValue, maxValue, optimalValue, timeFrame, Color.DARK_GRAY, Color.WHITE, Color.YELLOW, Color.YELLOW);
+		this(minValue, maxValue, optimalValue, timeFrame, GraphColor.DARK_GRAY, GraphColor.WHITE, GraphColor.random());
 	}
 	
 	// centered around y-axis
@@ -75,21 +79,23 @@ public class ParameterGraph extends ParameterVisualization
 	public void setMinValue(double minValue)
 	{
 		this.minValue = minValue;
+		updateInternals();
 	}
 	
 	public void setMaxValue(double maxValue)
 	{
 		this.maxValue = maxValue;
+		updateInternals();
 	}
 
 	// set graph color
-	public void setAxisColor(Color color)
+	public void setAxisColor(GraphColor color)
 	{
 		this.axisColor = color;
 	}
 	
 	// set bg color
-	public void setBGColor(Color color)
+	public void setBGColor(GraphColor color)
 	{
 		this.bgColor = color;
 		bgColor.setClearColor(gl);
@@ -125,16 +131,19 @@ public class ParameterGraph extends ParameterVisualization
 	{
 		double totalX = 1.0;
 		Iterator<Vec2> iterPoints = points.iterator();
-		Iterator<Color> iterColors = colors.iterator();
+		//Iterator<GraphColor> iterColors = colors.iterator();
 		
+		graphColor.setDrawColor(gl);
 		Vec2 point;
 		gl.glBegin(GL.GL_LINE_STRIP);
 		while(iterPoints.hasNext())
 		{
 			point = iterPoints.next();
-			iterColors.next().setDrawColor(gl);
+			//iterColors.next().setDrawColor(gl);
+			// values are transformed according to value range
 			// viewport is defined from -1 to 1 in both x and y direction so values need to be transformed again
-			gl.glVertex2d(2*totalX-1, 2*point.y-1);
+			double mappedValue = (point.y - minValue) / valueRange;
+			gl.glVertex2d(2*totalX-1, 2*mappedValue-1);
 			totalX -= point.x / timeFrame;
 		}
 		gl.glEnd();
@@ -161,10 +170,9 @@ public class ParameterGraph extends ParameterVisualization
 	@Override
 	public void update(double newValue, double deltaTime) 
 	{
-		double mappedValue = (newValue - minValue) / valueRange;
-		Vec2 newPoint = new Vec2(deltaTime, mappedValue);
+		Vec2 newPoint = new Vec2(deltaTime, newValue);
 		points.addFirst(newPoint);
-		colors.addFirst(mapper.getInterpolatedColor(newValue));
+		//colors.addFirst(mapper.getInterpolatedColor(newValue));
 		// update total time
 		totalTime += deltaTime;
 		// remove oldest points when total time is reached
@@ -172,8 +180,58 @@ public class ParameterGraph extends ParameterVisualization
 		{
 			Vec2 tail = points.removeLast();
 			totalTime -= tail.x;
-			colors.removeLast();
+			//colors.removeLast();
 		}
+	}
+
+	@Override
+	public void setValueRange(double minValue, double maxValue) 
+	{
+		this.minValue = minValue;
+		this.maxValue = maxValue;
+		updateInternals();
+	}
+	
+	private void updateInternals()
+	{
+		this.valueRange = maxValue - minValue;
+		//mapper.updateRange(minValue, maxValue);
+	}
+
+	@Override
+	public double getMinValue() 
+	{
+		return minValue;
+	}
+
+	@Override
+	public double getMaxValue() 
+	{
+		return maxValue;
+	}
+
+	@Override
+	public GraphColor getGraphColor() 
+	{
+		return graphColor;
+	}
+
+	@Override
+	public void setGraphColor(GraphColor color) 
+	{
+		this.graphColor = color;
+	}
+
+	@Override
+	public double getTimeFrame() 
+	{
+		return timeFrame;
+	}
+
+	@Override
+	public void setTimeFrame(double range) 
+	{
+		this.timeFrame = range;
 	}
 
 }

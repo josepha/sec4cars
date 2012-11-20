@@ -20,13 +20,13 @@ public class ParameterQuad extends ParameterVisualization
 	private FrameTimer timer;
 
 	private GL2 gl;
-	private Color bgColor;
+	private GraphColor bgColor;
 	// current display color
-	private Color currentColor;
+	private GraphColor currentColor;
 	// color mapper
 	private ColorMapper mapper;
 	
-	public ParameterQuad(double minValue, double maxValue, double optimalValue, Color bgColor, Color goodValueColor, Color badValueColor)
+	public ParameterQuad(double minValue, double maxValue, double optimalValue, GraphColor bgColor, GraphColor goodValueColor, GraphColor badValueColor)
 	{
 		this.minValue = minValue;
 		this.maxValue = maxValue;
@@ -46,7 +46,7 @@ public class ParameterQuad extends ParameterVisualization
 	
 	public ParameterQuad(double minValue, double maxValue, double optimalValue)
 	{
-		this(minValue, maxValue, optimalValue, Color.BLACK, Color.GREEN, Color.RED);
+		this(minValue, maxValue, optimalValue, GraphColor.BLACK, GraphColor.GREEN, GraphColor.RED);
 	}
 	
 	@Override
@@ -74,8 +74,8 @@ public class ParameterQuad extends ParameterVisualization
 		gl.glBegin(GL.GL_TRIANGLE_FAN);
 			gl.glVertex2d(-0.1, 0);
 			gl.glVertex2d( 0.1, 0);
-			gl.glVertex2d( 0.1, 2*(currentValue-minValue) / valueRange-1);
-			gl.glVertex2d(-0.1, 2*(currentValue-minValue) / valueRange-1);
+			gl.glVertex2d( 0.1, 2*(currentValue-minValue)/valueRange - 1);
+			gl.glVertex2d(-0.1, 2*(currentValue-minValue)/valueRange - 1);
 		gl.glEnd();
 	}
 
@@ -90,6 +90,74 @@ public class ParameterQuad extends ParameterVisualization
 	{
 		currentValue = newValue;
 		currentColor = mapper.getInterpolatedColor(newValue);
+	}
+
+	@Override
+	public void setMinValue(double minValue) 
+	{
+		this.minValue = minValue;
+		updateInternals();
+	}
+
+	@Override
+	public void setMaxValue(double maxValue) 
+	{
+		this.maxValue = maxValue;
+		updateInternals();
+	}
+
+	@Override
+	public void setValueRange(double minValue, double maxValue) 
+	{
+		this.minValue = minValue;
+		this.maxValue = maxValue;
+		updateInternals();
+	}
+	
+	private void updateInternals()
+	{
+		this.valueRange = maxValue - minValue;
+		mapper.updateRange(minValue, maxValue);
+		this.valueScale = Math.max(maxValue - optimalValue, optimalValue - minValue);
+	}
+
+	@Override
+	public double getMinValue() 
+	{
+		return minValue;
+	}
+
+	@Override
+	public double getMaxValue() 
+	{
+		// TODO Auto-generated method stub
+		return maxValue;
+	}
+
+	@Override
+	public GraphColor getGraphColor() 
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setGraphColor(GraphColor color) 
+	{	
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public double getTimeFrame() 
+	{
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void setTimeFrame(double range) 
+	{
+		// TODO Auto-generated method stub
 	}
 
 }

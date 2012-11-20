@@ -13,7 +13,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
 import javax.swing.ScrollPaneConstants;
@@ -51,22 +50,16 @@ public class MainView extends JFrame
 		// scrollpane holding the visualizations
 		JScrollPane graphListPane = new JScrollPane(graphPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		
-		GLProfile glprofile = GLProfile.getDefault();
-        GLCapabilities glcapabilities = new GLCapabilities( glprofile );
-		for(int i = 0; i < 4; ++i)
+		for(int i = 0; i < 10; ++i)
 	    {
 			// TODO: replace GLJPanel with ParameterView once implemented
-			GLJPanel panel = new GLJPanel( glcapabilities );
-	        if(i % 2 == 0) panel.addGLEventListener(new ParameterGraph(2.5, 0, 45));
-	        else panel.addGLEventListener(new ParameterQuad(-1.25, 1.25, 0.0));
-	        FPSAnimator animator = new FPSAnimator(panel, 30);
-	        animator.start();
+			ParameterView panel = new ParameterView( "name " + i );
+	        if(i % 2 == 0) panel.setVisualization(new ParameterGraph(2.5, 0, 45));
+	        else panel.setVisualization(new ParameterQuad(-1.25, 1.25, 0.0));
 	        panel.setMinimumSize(new Dimension(500, 300));
 	        graphPanel.add(panel);
-	        graphPanel.add(Box.createRigidArea( new Dimension(50, 8)));
 	        graphPanel.setMinimumSize(new Dimension(500, i * 400));
 	    }
-
 		// fill tree
 		DefaultMutableTreeNode dataRoot = new DefaultMutableTreeNode("Steuergeräte");
 		dataBlocksTree = new JTree(dataRoot);
@@ -111,6 +104,7 @@ public class MainView extends JFrame
 		dataBlocksTree.setMinimumSize(new Dimension(300,300));
 		dataBlocksTree.setPreferredSize(new Dimension(300,300));
 		dataBlocksTree.setMaximumSize(new Dimension(300,300));
+		dataBlocksTree.setAlignmentX(LEFT_ALIGNMENT);
 		
 		JLabel auswahlLabel = new JLabel(" Auswahl");
 		JButton auswahlanzeigenButton = new JButton("anzeigen");
@@ -181,15 +175,17 @@ public class MainView extends JFrame
 
 		
 		JPanel buttonsPanel = new JPanel();
-		buttonsPanel.setAlignmentX(RIGHT_ALIGNMENT);
+		buttonsPanel.setAlignmentX(LEFT_ALIGNMENT);
 		buttonsPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 		buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.LINE_AXIS));
 		buttonsPanel.add(buttonsLeftPanel);
 		buttonsPanel.add(buttonsRightPanel);
 		
 		JPanel treePanel = new JPanel();
+		treePanel.setLayout(new BoxLayout(treePanel, BoxLayout.PAGE_AXIS));		
 		//treePanel.setAlignmentX(LEFT_ALIGNMENT);
 		treePanel.add(dataBlocksTree);
+		treePanel.setAlignmentX(LEFT_ALIGNMENT);
 		
 		JPanel leftContainer = new JPanel();
 		leftContainer.setLayout(new BoxLayout(leftContainer, BoxLayout.PAGE_AXIS));		

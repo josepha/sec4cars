@@ -7,12 +7,12 @@ public class ColorMapper
 	// maximum distance to optimal color
 	private double rangeScale;
 	
-	private Color goodValueColor;
-	private Color badValueColor;
+	private GraphColor goodValueColor;
+	private GraphColor badValueColor;
 	
 	private Interpolator interpolator;
 	
-	public ColorMapper(double optimalValue, double minValue, double maxValue, Interpolator interpolator, Color goodValueColor, Color badValueColor)
+	public ColorMapper(double optimalValue, double minValue, double maxValue, Interpolator interpolator, GraphColor goodValueColor, GraphColor badValueColor)
 	{
 		this.optimalValue = optimalValue;
 		this.rangeScale = Math.max(maxValue - optimalValue, optimalValue - minValue);
@@ -22,22 +22,27 @@ public class ColorMapper
 		this.interpolator = interpolator;
 	}
 	
-	public Color getOptimalColor()
+	public void updateRange(double minValue, double maxValue)
+	{
+		this.rangeScale = Math.max(maxValue - optimalValue, optimalValue - minValue);
+	}
+	
+	public GraphColor getOptimalColor()
 	{
 		return goodValueColor;
 	}
 	
-	public Color getWorstColor()
+	public GraphColor getWorstColor()
 	{
 		return badValueColor;
 	}
 	
 	public ColorMapper(double optimalValue, double minValue, double maxValue, Interpolator interpolator)
 	{
-		this(optimalValue, minValue, maxValue, interpolator, Color.GREEN, Color.RED);
+		this(optimalValue, minValue, maxValue, interpolator, GraphColor.GREEN, GraphColor.RED);
 	}
 	
-	public Color getInterpolatedColor(double value)
+	public GraphColor getInterpolatedColor(double value)
 	{
 		float t = 1.0f - (float) (Math.abs(value - optimalValue) / rangeScale);
 		// interpolate between good and bad color
