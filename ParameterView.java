@@ -2,7 +2,6 @@
 // will contain UI components to control output behavior 
 // TODO: extend
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -13,6 +12,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.media.opengl.GLCapabilities;
 import javax.media.opengl.GLProfile;
@@ -37,12 +38,21 @@ public class ParameterView extends JPanel
 {
 	private static final long serialVersionUID = 1L;
 	
+    //*********************************************************************
+	
+	private Timer timer;
+	
+	// set up GUI components
+	
 	// canvas for openGL rendering
 	private GLJPanel glPanel;
 	// label for block name
 	private JLabel nameLabel;
 	// panel holding buttons below graph
 	private JPanel buttonsPanel;
+	private JPanel titlePanel;
+	// button for closing panel
+	private JButton closeButton;
 	// buttons for switching view order
 	private JButton switchUpButton;
 	private JButton switchDownButton;
@@ -51,7 +61,7 @@ public class ParameterView extends JPanel
 	private JButton priorityMinusButton;
 	private JTextField priorityField;
 	
-	private JLayeredPane layeredPane;;
+	private JLayeredPane layeredPane;
 	
 	// value range labels
 	private JTextField minVal;
@@ -95,16 +105,19 @@ public class ParameterView extends JPanel
 		
 		// pass name to label
 		// spaces are used to shift text slightly to the right
-		nameLabel = new JLabel("  " + name);
-		nameLabel.setMinimumSize(new Dimension(50, 30));
-		nameLabel.setPreferredSize(new Dimension(400, 30));
-		nameLabel.setMaximumSize(new Dimension(1500, 30));
+		nameLabel = new JLabel(name);
 		nameLabel.setHorizontalAlignment(SwingConstants.LEADING);
+		int buttonSize = 28;
+		// set up close button
+		ImageIcon close = new ImageIcon("close.png");
+		closeButton = new JButton(close);
+		closeButton.setMinimumSize(new Dimension(24,24));
+		closeButton.setPreferredSize(new Dimension(24, 24));
+		closeButton.setMaximumSize(new Dimension(24, 24));
 		// set up switch buttons
 		ImageIcon switchUp = new ImageIcon("switchUp.png");
 		ImageIcon switchDown = new ImageIcon("switchDown.png");
 		switchUpButton = new JButton(switchUp);
-		int buttonSize = 28;
 		switchUpButton.setMinimumSize(new Dimension(buttonSize,buttonSize));
 		switchUpButton.setPreferredSize(new Dimension(buttonSize, buttonSize));
 		switchUpButton.setMaximumSize(new Dimension(buttonSize, buttonSize));
@@ -172,6 +185,12 @@ public class ParameterView extends JPanel
         buttonsPanel.setMinimumSize(new Dimension(50,35));
         buttonsPanel.setPreferredSize(new Dimension(400, 35));
         buttonsPanel.setMaximumSize(new Dimension(1500, 35));
+        // set up panel holding title and close button
+ 		titlePanel = new JPanel();
+ 		titlePanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.LINE_AXIS));
+ 		titlePanel.setMinimumSize(new Dimension(50,35));
+ 		titlePanel.setPreferredSize(new Dimension(400, 35));
+ 		titlePanel.setMaximumSize(new Dimension(1500, 35));
         // graph color label
         colorLabel = new JLabel();
         colorLabel.setOpaque(true);
@@ -186,9 +205,20 @@ public class ParameterView extends JPanel
         animator.start();
         add(Box.createHorizontalGlue());
            
+        int minDist = 7;
         // set alignments and add components
         nameLabel.setAlignmentX(LEFT_ALIGNMENT);
-        add(nameLabel);
+        titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.LINE_AXIS));
+        titlePanel.setMinimumSize(new Dimension(50, 30));
+        titlePanel.setPreferredSize(new Dimension(400, 30));
+        titlePanel.setMaximumSize(new Dimension(1500, 30));
+        titlePanel.add(Box.createHorizontalStrut(minDist));
+        titlePanel.add(nameLabel);
+        titlePanel.add(Box.createHorizontalGlue());
+        titlePanel.add(Box.createHorizontalStrut(minDist));
+        titlePanel.add(closeButton);
+        titlePanel.setAlignmentX(LEFT_ALIGNMENT);
+        add(titlePanel);
         add(Box.createHorizontalGlue());
         layeredPane = new JLayeredPane();
         layeredPane.setLayout(new BoxLayout(layeredPane, BoxLayout.LINE_AXIS));
@@ -203,31 +233,32 @@ public class ParameterView extends JPanel
         buttonsPanel.setAlignmentX(LEFT_ALIGNMENT);
         add(Box.createHorizontalGlue());
         add(buttonsPanel);
-        buttonsPanel.add(Box.createHorizontalStrut(7));
+        buttonsPanel.add(Box.createHorizontalStrut(minDist));
         buttonsPanel.add(colorLabel);
-        buttonsPanel.add(Box.createHorizontalStrut(30));
+        buttonsPanel.add(Box.createHorizontalGlue());
+        buttonsPanel.add(Box.createHorizontalStrut(minDist));
         buttonsPanel.add(priorityPlusButton);
-        buttonsPanel.add(Box.createHorizontalStrut(7));
+        buttonsPanel.add(Box.createHorizontalStrut(minDist));
         buttonsPanel.add(priorityField);
-        buttonsPanel.add(Box.createHorizontalStrut(7));
+        buttonsPanel.add(Box.createHorizontalStrut(minDist));
         buttonsPanel.add(priorityMinusButton);
-        buttonsPanel.add(Box.createHorizontalStrut(30));
+        buttonsPanel.add(Box.createHorizontalGlue());
+        buttonsPanel.add(Box.createHorizontalStrut(minDist));
         buttonsPanel.add(minLabel);
         buttonsPanel.add(minVal);
         buttonsPanel.add(maxLabel);
         buttonsPanel.add(maxVal);
         buttonsPanel.add(Box.createHorizontalGlue());
-        buttonsPanel.add(Box.createHorizontalStrut(30));
+        buttonsPanel.add(Box.createHorizontalStrut(minDist));
         buttonsPanel.add(broaderButton);
         buttonsPanel.add(narrowerButton);
-        buttonsPanel.add(Box.createHorizontalStrut(7));
+        buttonsPanel.add(Box.createHorizontalStrut(minDist));
         buttonsPanel.add(switchUpButton);
         buttonsPanel.add(switchDownButton);
+        buttonsPanel.add(Box.createHorizontalStrut(minDist));
         add(new JSeparator());
         
         //*********************************************************************
-        
-        // setup component listeners
         
         // needs to be passed to buttonListeners
         final ParameterView thisView = this;
@@ -265,7 +296,7 @@ public class ParameterView extends JPanel
                     parent.add(comp);
                 }
             	// lay out components again
-            	parent.validate();	
+            	parent.revalidate();
             } 
         });
         
@@ -410,23 +441,107 @@ public class ParameterView extends JPanel
 		});
         
         //TODO: adjust constant
-        final double timeFrameStep = 1.0;
+        final double timeFrameStep = 0.05;
         
-        narrowerButton.addActionListener(new ActionListener() 
+        narrowerButton.addMouseListener(new MouseListener() 
+        {
+            Timer timer = new Timer();
+			@Override
+			public void mouseReleased(MouseEvent arg0) 
+			{
+				timer.cancel();
+			}
+			
+			@Override
+			public void mousePressed(MouseEvent arg0) 
+			{
+				timer = new Timer();
+				timer.schedule( new TimerTask() {
+
+					@Override
+					public void run() 
+					{
+						double timeFrame = linkedVisualization.getTimeFrame();
+		            	linkedVisualization.setTimeFrame(timeFrame + timeFrameStep * timeFrame);
+					}
+		        	  
+		          }, 0, 50);
+			}
+			
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+			}
+			
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+			}
+			
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+			}
+		});
+        
+        broaderButton.addMouseListener(new MouseListener() 
+        {
+			@Override
+			public void mouseReleased(MouseEvent arg0) 
+			{
+				timer.cancel();
+			}
+			
+			@Override
+			public void mousePressed(MouseEvent arg0) 
+			{
+				timer = new Timer();
+				timer.schedule( new TimerTask() {
+
+					@Override
+					public void run() 
+					{
+						double timeFrame = linkedVisualization.getTimeFrame();
+		            	linkedVisualization.setTimeFrame(timeFrame - timeFrameStep * timeFrame);
+					}
+		        	  
+		          }, 0, 50);
+			}
+			
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+			}
+			
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+			}
+			
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+			}
+		});
+        
+//        broaderButton.addActionListener(new ActionListener() 
+//        {
+//            public void actionPerformed(ActionEvent e) 
+//            {
+//            	double timeFrame = linkedVisualization.getTimeFrame();
+//            	linkedVisualization.setTimeFrame(timeFrame - timeFrameStep);
+//            }  
+//        });
+        
+        closeButton.addActionListener(new ActionListener() 
         {
             public void actionPerformed(ActionEvent e) 
             {
-            	double timeFrame = linkedVisualization.getTimeFrame();
-            	linkedVisualization.setTimeFrame(timeFrame + timeFrameStep);
-            }
-        });
-        
-        broaderButton.addActionListener(new ActionListener() 
-        {
-            public void actionPerformed(ActionEvent e) 
-            {
-            	double timeFrame = linkedVisualization.getTimeFrame();
-            	linkedVisualization.setTimeFrame(timeFrame - timeFrameStep);
+            	Container parent = thisView.getParent();
+            	// remove view
+            	parent.remove(thisView);
+            	parent.revalidate();
+            	// TODO: hopefully GC cleans up eventually... I hate Java!
             }  
         });
 	}	
