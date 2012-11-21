@@ -441,7 +441,8 @@ public class ParameterView extends JPanel
 		});
         
         //TODO: adjust constant
-        final double timeFrameStep = 0.05;
+        final double timeFrameStep = 0.1;
+        final double timeFrameIterativeStep = 0.05;
         
         narrowerButton.addMouseListener(new MouseListener() 
         {
@@ -455,6 +456,8 @@ public class ParameterView extends JPanel
 			@Override
 			public void mousePressed(MouseEvent arg0) 
 			{
+				double timeFrame = linkedVisualization.getTimeFrame();
+            	linkedVisualization.setTimeFrame(timeFrame + timeFrameStep * timeFrame);
 				timer = new Timer();
 				timer.schedule( new TimerTask() {
 
@@ -462,10 +465,10 @@ public class ParameterView extends JPanel
 					public void run() 
 					{
 						double timeFrame = linkedVisualization.getTimeFrame();
-		            	linkedVisualization.setTimeFrame(timeFrame + timeFrameStep * timeFrame);
+		            	linkedVisualization.setTimeFrame(timeFrame + timeFrameIterativeStep * timeFrame);
 					}
 		        	  
-		          }, 0, 50);
+		          }, 700, 50);
 			}
 			
 			@Override
@@ -495,6 +498,8 @@ public class ParameterView extends JPanel
 			@Override
 			public void mousePressed(MouseEvent arg0) 
 			{
+				double timeFrame = linkedVisualization.getTimeFrame();
+            	linkedVisualization.setTimeFrame(timeFrame - timeFrameStep * timeFrame);
 				timer = new Timer();
 				timer.schedule( new TimerTask() {
 
@@ -502,10 +507,10 @@ public class ParameterView extends JPanel
 					public void run() 
 					{
 						double timeFrame = linkedVisualization.getTimeFrame();
-		            	linkedVisualization.setTimeFrame(timeFrame - timeFrameStep * timeFrame);
+		            	linkedVisualization.setTimeFrame(timeFrame - timeFrameIterativeStep * timeFrame);
 					}
 		        	  
-		          }, 0, 50);
+		          }, 700, 50);
 			}
 			
 			@Override
