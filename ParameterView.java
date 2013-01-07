@@ -6,6 +6,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -23,6 +24,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
@@ -34,9 +36,12 @@ import javax.swing.SwingConstants;
 import com.jogamp.opengl.util.FPSAnimator;
 
 // TODO implement stuff belonging to the view
-public class ParameterView extends JPanel
+public class ParameterView extends AbstractView
 {
 	private static final long serialVersionUID = 1L;
+	
+	// visualization for this data block view
+	private AbstractVisualization linkedVisualization = null;
 	
     //*********************************************************************
 	
@@ -61,6 +66,8 @@ public class ParameterView extends JPanel
 	private JButton priorityMinusButton;
 	private JTextField priorityField;
 	
+	private JCheckBox autoAdjustBox;
+	
 	private JLayeredPane layeredPane;
 	
 	// value range labels
@@ -76,25 +83,25 @@ public class ParameterView extends JPanel
 	private JButton narrowerButton;
 	private JButton broaderButton;
 	
-	private ParameterVisualization linkedVisualization = null;
-	
-	public void setVisualization(ParameterVisualization visualization)
+	public void setVisualization(AbstractVisualization visualization)
 	{
 		glPanel.addGLEventListener(visualization);
 		linkedVisualization = visualization;
+		visualization.setContainingView(this);
 		updateRangeFields();
 		GraphColor col = linkedVisualization.getGraphColor();
 		// could not be returned by the view
 		if(col != null) colorLabel.setBackground(col.toJColor());
+		// show that color of this visualisation ist not editable
 		else colorLabel.setOpaque(false);
 	}
 	
 	// helper for updating textfields holding color range
-	private void updateRangeFields()
+	public void updateRangeFields()
 	{
 		if(linkedVisualization == null) return;
-		minVal.setText( String.valueOf(linkedVisualization.getMinValue()) );
-		maxVal.setText( String.valueOf(linkedVisualization.getMaxValue()) );
+		minVal.setText( String.format("%.3f", linkedVisualization.getMinValue()) );
+		maxVal.setText( String.format("%.3f", linkedVisualization.getMaxValue()) );
 	}
 
 	public ParameterView(String name) 
@@ -106,6 +113,8 @@ public class ParameterView extends JPanel
 		// pass name to label
 		// spaces are used to shift text slightly to the right
 		nameLabel = new JLabel(name);
+		Font font = new Font("Arial", Font.BOLD, 18);
+		nameLabel.setFont(font);
 		nameLabel.setHorizontalAlignment(SwingConstants.LEADING);
 		int buttonSize = 28;
 		// set up close button
@@ -136,6 +145,9 @@ public class ParameterView extends JPanel
 		narrowerButton.setMinimumSize(new Dimension(2 * buttonSize,buttonSize));
 		narrowerButton.setPreferredSize(new Dimension(2 * buttonSize, buttonSize));
 		narrowerButton.setMaximumSize(new Dimension(2 * buttonSize, buttonSize));
+		// setup autoAdjust gui
+		autoAdjustBox = new JCheckBox("Auto-Skalierung");
+		autoAdjustBox.setSelected(true);
 		
 		// set up priority buttons and label
 		ImageIcon priorityPlus = new ImageIcon("plus.png");
@@ -168,10 +180,12 @@ public class ParameterView extends JPanel
 		minVal.setMinimumSize(new Dimension(60, 20));
 		minVal.setPreferredSize(new Dimension(60, 20));
 		minVal.setMaximumSize(new Dimension(60, 20));
+		minVal.setHorizontalAlignment(JTextField.RIGHT);
 		maxVal = new JTextField();
 		maxVal.setMinimumSize(new Dimension(60, 20));
 		maxVal.setPreferredSize(new Dimension(60, 20));
 		maxVal.setMaximumSize(new Dimension(60, 20));
+		maxVal.setHorizontalAlignment(JTextField.RIGHT);
 		// set up openGL graph panel
 		GLProfile glprofile = GLProfile.getDefault();
         GLCapabilities glcapabilities = new GLCapabilities( glprofile );
@@ -219,20 +233,25 @@ public class ParameterView extends JPanel
         titlePanel.add(closeButton);
         titlePanel.setAlignmentX(LEFT_ALIGNMENT);
         add(titlePanel);
+        add(buttonsPanel);
         add(Box.createHorizontalGlue());
         layeredPane = new JLayeredPane();
         layeredPane.setLayout(new BoxLayout(layeredPane, BoxLayout.LINE_AXIS));
+        //com.sun.lwuit.layouts.Layout
         layeredPane.setAlignmentX(LEFT_ALIGNMENT);
         layeredPane.add(glPanel);
         glPanel.setAlignmentX(Box.LEFT_ALIGNMENT);
         layeredPane.setMinimumSize(new Dimension(50,300));
         layeredPane.setPreferredSize(new Dimension(400,300));
         layeredPane.setMaximumSize(new Dimension(1500,300));
+        //TODO: find out how to render label on top of view
+//        JLabel testLabel = new JLabel("TEST");
+//        layeredPane.add(testLabel);
+        //testLabel.setAlignmentX(Box.CENTER_ALIGNMENT);
         //TODO: add layered labels of min, max and units
         add(layeredPane);
         buttonsPanel.setAlignmentX(LEFT_ALIGNMENT);
         add(Box.createHorizontalGlue());
-        add(buttonsPanel);
         buttonsPanel.add(Box.createHorizontalStrut(minDist));
         buttonsPanel.add(colorLabel);
         buttonsPanel.add(Box.createHorizontalGlue());
@@ -248,6 +267,8 @@ public class ParameterView extends JPanel
         buttonsPanel.add(minVal);
         buttonsPanel.add(maxLabel);
         buttonsPanel.add(maxVal);
+        buttonsPanel.add(Box.createHorizontalStrut(minDist));
+        buttonsPanel.add(autoAdjustBox);
         buttonsPanel.add(Box.createHorizontalGlue());
         buttonsPanel.add(Box.createHorizontalStrut(minDist));
         buttonsPanel.add(broaderButton);
@@ -256,6 +277,7 @@ public class ParameterView extends JPanel
         buttonsPanel.add(switchUpButton);
         buttonsPanel.add(switchDownButton);
         buttonsPanel.add(Box.createHorizontalStrut(minDist));
+        add(Box.createVerticalStrut(minDist));
         add(new JSeparator());
         
         //*********************************************************************
@@ -372,7 +394,10 @@ public class ParameterView extends JPanel
 			{
 				if(arg0.getKeyCode() == KeyEvent.VK_ENTER)
 				{
-					linkedVisualization.setMinValue(Double.parseDouble(minVal.getText()));
+					linkedVisualization.setMinValue(Double.parseDouble(minVal.getText().replace(',', '.')));
+					// disable auto adjust because value was probably changed on purpose
+					autoAdjustBox.setSelected(false);
+					linkedVisualization.setAutoAdjust(false);
 					updateRangeFields();
 				}
 			}
@@ -395,7 +420,10 @@ public class ParameterView extends JPanel
 			{
 				if(arg0.getKeyCode() == KeyEvent.VK_ENTER)
 				{
-					linkedVisualization.setMaxValue(Double.parseDouble(maxVal.getText()));
+					linkedVisualization.setMaxValue(Double.parseDouble(maxVal.getText().replace(',', '.')));
+					// disable auto adjust because value was probably changed on purpose
+					autoAdjustBox.setSelected(false);
+					linkedVisualization.setAutoAdjust(false);
 					updateRangeFields();
 				}
 			}
@@ -549,5 +577,18 @@ public class ParameterView extends JPanel
             	// TODO: hopefully GC cleans up eventually... I hate Java!
             }  
         });
+        
+        autoAdjustBox.addActionListener(new ActionListener() 
+        {
+            public void actionPerformed(ActionEvent e) 
+            {
+            	linkedVisualization.setAutoAdjust(autoAdjustBox.isSelected());
+            }  
+        });
 	}	
+	
+	private void update()
+	{
+		
+	}
 }

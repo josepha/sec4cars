@@ -20,8 +20,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 //import javax.swing.*;
 //import javax.swing.tree.DefaultMutableTreeNode;
 
-import com.jogamp.opengl.util.FPSAnimator;
-
 // Main view with layout
 // contends so far: the frame holds a screen filling horizJSplitPane, which has a JTree as its left,
 // and a JScrollPane with a JLabel holding multiple GLJPanels as its right component
@@ -30,67 +28,11 @@ public class MainView extends JFrame
 {
 	private static final long serialVersionUID = 1L;
 
+	// graph panel
+	private JPanel graphPanel;
 	
-	private void initilaizeTree(DefaultMutableTreeNode dataRoot)	{
-		//TODO aus datei laden?
-		
-		//alle steuergeräte
-		DefaultMutableTreeNode j623 = new DefaultMutableTreeNode("J623 Motorsteuergerät");
-		DefaultMutableTreeNode j624 = new DefaultMutableTreeNode("J624 Motorsteuergerät 2");
-		DefaultMutableTreeNode j104 = new DefaultMutableTreeNode("J104 ABS");
-		DefaultMutableTreeNode j234 = new DefaultMutableTreeNode("J234 Airbag");
-		DefaultMutableTreeNode j217 = new DefaultMutableTreeNode("J217 automatisches Getriebe");
-		DefaultMutableTreeNode j431 = new DefaultMutableTreeNode("J431 Leuchtweitenregelung");
-		DefaultMutableTreeNode j197 = new DefaultMutableTreeNode("J197 Niveauregelung");
-		DefaultMutableTreeNode j502 = new DefaultMutableTreeNode("J502 Reifendruckkontrolle");
-		DefaultMutableTreeNode j518 = new DefaultMutableTreeNode("J518 Zugang und Startberechtigung");
-		
-		//j623 motorsteuergerät messwerte
-		DefaultMutableTreeNode j623_m001_01 = new DefaultMutableTreeNode("001/1 Engine Speed (RPM)");
-		DefaultMutableTreeNode j623_m002_04 = new DefaultMutableTreeNode("002/4 Mass Airflow (g/s)");
-		DefaultMutableTreeNode j623_m003_03 = new DefaultMutableTreeNode("003/3 Throttle valve angle (%)");
-		DefaultMutableTreeNode j623_m010_04 = new DefaultMutableTreeNode("010/4 Ignition angle (°BTDC °KW ???)");
-		DefaultMutableTreeNode j623_m004_02 = new DefaultMutableTreeNode("004/2 Battery voltage (V)");
-		DefaultMutableTreeNode j623_m006_04 = new DefaultMutableTreeNode("006/4 Altitude correction (%)");
-		
-		//TODO weitere steuergeräte: messwerte eintragen
-		DefaultMutableTreeNode j624_default = new DefaultMutableTreeNode("empty");
-		DefaultMutableTreeNode j104_default = new DefaultMutableTreeNode("empty");
-		DefaultMutableTreeNode j234_default = new DefaultMutableTreeNode("empty");
-		DefaultMutableTreeNode j217_default = new DefaultMutableTreeNode("empty");
-		DefaultMutableTreeNode j431_default = new DefaultMutableTreeNode("empty");
-		DefaultMutableTreeNode j197_default = new DefaultMutableTreeNode("empty");
-		DefaultMutableTreeNode j502_default = new DefaultMutableTreeNode("empty");
-		DefaultMutableTreeNode j518_default = new DefaultMutableTreeNode("empty");
-
-		//j623 motorsteuergerät
-		j623.add(j623_m001_01);
-		j623.add(j623_m002_04);
-		j623.add(j623_m003_03);
-		j623.add(j623_m010_04);
-		j623.add(j623_m004_02);
-		j623.add(j623_m006_04);
-		
-		//TODO weitere steuergeräte: messwerte einfügen
-		j624.add(j624_default);
-		j104.add(j104_default);
-		j234.add(j234_default);
-		j217.add(j217_default);
-		j431.add(j431_default);
-		j197.add(j197_default);
-		j502.add(j502_default);
-		j518.add(j518_default);
-		
-		dataRoot.add(j623);
-		dataRoot.add(j624);
-		dataRoot.add(j104);
-		dataRoot.add(j234);
-		dataRoot.add(j217);
-		dataRoot.add(j431);
-		dataRoot.add(j197);
-		dataRoot.add(j502);
-		dataRoot.add(j518);
-	}
+	// tree containing car data types
+	private JTree dataBlocksTree;
 	
 	public MainView(String title)
 	{
@@ -101,7 +43,7 @@ public class MainView extends JFrame
 		// quit program when window is closed
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-        JPanel graphPanel = new JPanel();
+		graphPanel = new JPanel();
 		graphPanel.setLayout( new BoxLayout(graphPanel, BoxLayout.Y_AXIS) );
 		// scrollpane holding the visualizations
 		JScrollPane graphListPane = new JScrollPane(graphPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -110,16 +52,52 @@ public class MainView extends JFrame
 	    {
 			// TODO: replace GLJPanel with ParameterView once implemented
 			ParameterView panel = new ParameterView( "name " + i );
-	        if(i % 2 == 0) panel.setVisualization(new ParameterGraph(2.5, 0, 45));
-	        else panel.setVisualization(new ParameterQuad(-1.25, 1.25, 0.0));
+	        panel.setVisualization(new GraphVisualization(2.5, 0, 45));
 	        panel.setMinimumSize(new Dimension(500, 300));
 	        graphPanel.add(panel);
 	        graphPanel.setMinimumSize(new Dimension(500, i * 400));
 	    }
 		// fill tree
 		DefaultMutableTreeNode dataRoot = new DefaultMutableTreeNode("Steuergeräte");
-		JTree dataBlocksTree = new JTree(dataRoot);
-		initilaizeTree(dataRoot);
+		dataBlocksTree = new JTree(dataRoot);
+		DefaultMutableTreeNode j623_01 = new DefaultMutableTreeNode("J623 Motorsteuergerät");
+		DefaultMutableTreeNode j624_02 = new DefaultMutableTreeNode("J624 Motorsteuergerät 2");
+		DefaultMutableTreeNode j104_03 = new DefaultMutableTreeNode("J104 ABS");
+		DefaultMutableTreeNode j234_04 = new DefaultMutableTreeNode("J234 Airbag");
+		DefaultMutableTreeNode j217_05 = new DefaultMutableTreeNode("J217 automatisches Getriebe");
+		DefaultMutableTreeNode j431_06 = new DefaultMutableTreeNode("J431 Leuchtweitenregelung");
+		DefaultMutableTreeNode j197_07 = new DefaultMutableTreeNode("J197 Niveauregelung");
+		DefaultMutableTreeNode j502_08 = new DefaultMutableTreeNode("J502 Reifendruckkontrolle");
+		DefaultMutableTreeNode j518_09 = new DefaultMutableTreeNode("J518 Zugang und Startberechtigung");
+		
+		DefaultMutableTreeNode j01_m00x_0x = new DefaultMutableTreeNode("00x/x Engine Speed Sensor");
+		DefaultMutableTreeNode j01_m00y_0x = new DefaultMutableTreeNode("00x/x Mass Airflow Sensor");
+//		DefaultMutableTreeNode j623_m001 = new DefaultMutableTreeNode("Intake manifold pressure");
+//		DefaultMutableTreeNode j623_m001 = new DefaultMutableTreeNode("Messblock 001");
+//		DefaultMutableTreeNode j623_m001 = new DefaultMutableTreeNode("Messblock 001");
+//		DefaultMutableTreeNode j623_m001 = new DefaultMutableTreeNode("Messblock 001");
+//		general.add(new DefaultMutableTreeNode("stuff"));
+//		DefaultMutableTreeNode engine = new DefaultMutableTreeNode("Engine");
+//		engine.add(new DefaultMutableTreeNode("stuff"));
+//		DefaultMutableTreeNode tires = new DefaultMutableTreeNode("Tires");
+//		tires.add(new DefaultMutableTreeNode("stuff"));
+//		DefaultMutableTreeNode environment = new DefaultMutableTreeNode("Environment");
+//		environment.add(new DefaultMutableTreeNode("stuff"));
+//		dataRoot.add(general);
+//		dataRoot.add(engine);
+//		dataRoot.add(tires);
+//		dataRoot.add(environment);
+		j623_01.add(j01_m00x_0x);
+		j623_01.add(j01_m00y_0x);
+		dataRoot.add(j623_01);
+		dataRoot.add(j624_02);
+		dataRoot.add(j104_03);
+		dataRoot.add(j234_04);
+		dataRoot.add(j217_05);
+		dataRoot.add(j431_06);
+		dataRoot.add(j197_07);
+		dataRoot.add(j502_08);
+		dataRoot.add(j518_09);
 		dataBlocksTree.setMinimumSize(new Dimension(300,300));
 		dataBlocksTree.setPreferredSize(new Dimension(300,300));
 		dataBlocksTree.setMaximumSize(new Dimension(300,300));
