@@ -34,6 +34,13 @@ public class MainView extends JFrame
 	// tree containing car data types
 	private JTree dataBlocksTree;
 	
+	// getter für graphPanel, den Container, der die Graphansichten enthält
+	// @josepha: hier über .add die Visualisierungen der Motorblöcke hinzufügen
+	public JPanel getGraphPanel()
+	{
+		return graphPanel;
+	}
+	
 	public MainView(String title)
 	{
 		super(title);

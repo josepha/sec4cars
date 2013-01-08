@@ -14,8 +14,13 @@ public class CarInspector
 		{
 				e.printStackTrace();
 		}
-        MainView mainFrame = new MainView("CarInspector");
+		
+        MainView mainView = new MainView("CarInspector");
         // make component visible
-        mainFrame.setVisible(true);
+        mainView.setVisible(true);
+     
+        int i = 0;
+        // update loop
+        //((ParameterView) mainView.getGraphPanel().getComponent(i)).get
     }
 }
