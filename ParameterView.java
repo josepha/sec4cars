@@ -83,8 +83,10 @@ public class ParameterView extends AbstractView
 	private JButton narrowerButton;
 	private JButton broaderButton;
 	
+	private int priority;
+	
 	public void setVisualization(AbstractVisualization visualization)
-	{
+	{		
 		glPanel.addGLEventListener(visualization);
 		linkedVisualization = visualization;
 		visualization.setContainingView(this);
@@ -109,6 +111,8 @@ public class ParameterView extends AbstractView
 		// parameter view setup
 		super();
 		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+		
+		priority = 1;
 		
 		// pass name to label
 		// spaces are used to shift text slightly to the right
@@ -160,7 +164,7 @@ public class ParameterView extends AbstractView
 		priorityMinusButton.setMinimumSize(new Dimension(buttonSize,buttonSize));
 		priorityMinusButton.setPreferredSize(new Dimension(buttonSize, buttonSize));
 		priorityMinusButton.setMaximumSize(new Dimension(buttonSize, buttonSize));
-		priorityField = new JTextField("5");
+		priorityField = new JTextField(priority+"");
 		priorityField.setMinimumSize(new Dimension(20, 20));
 		priorityField.setPreferredSize(new Dimension(20, 20));
 		priorityField.setMaximumSize(new Dimension(20, 20));
@@ -357,8 +361,8 @@ public class ParameterView extends AbstractView
             public void actionPerformed(ActionEvent e) 
             {
             	// increment label integer by one
-            	int newVal = Math.min(Integer.parseInt(priorityField.getText())+1,10);
-            	priorityField.setText(String.valueOf(newVal));
+            	priority =  Math.min(priority+1,10);
+            	priorityField.setText(priority+"");
             }
         });
         
@@ -367,8 +371,8 @@ public class ParameterView extends AbstractView
             public void actionPerformed(ActionEvent e) 
             {
             	// decrement label integer by one
-            	int newVal = Math.max(Integer.parseInt(priorityField.getText())-1,1);
-            	priorityField.setText(String.valueOf(newVal));
+            	priority =  Math.max(priority-1,1);
+            	priorityField.setText(priority+"");
             }  
         });
         

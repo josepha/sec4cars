@@ -19,8 +19,14 @@ public class CarInspector
         // make component visible
         mainView.setVisible(true);
      
-        int i = 0;
+        
         // update loop
-        //((ParameterView) mainView.getGraphPanel().getComponent(i)).get
+//        int activePanelCount = mainView.getGraphPanel().getComponentCount();
+//        for(int i=0;i<activePanelCount;i++)
+//        {
+//        	ParameterView paraView = (ParameterView)mainView.getGraphPanel().getComponent(i);
+//        	paraView.graphVisu.update(0.5, 0.01);
+//        }
+
     }
 }

@@ -1,6 +1,10 @@
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.media.opengl.GLCapabilities;
 import javax.media.opengl.GLProfile;
@@ -17,8 +21,11 @@ import javax.swing.JSplitPane;
 import javax.swing.JTree;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.MutableTreeNode;
+import javax.swing.tree.TreePath;
 //import javax.swing.*;
 //import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeSelectionModel;
 
 // Main view with layout
 // contends so far: the frame holds a screen filling horizJSplitPane, which has a JTree as its left,
@@ -41,6 +48,77 @@ public class MainView extends JFrame
 		return graphPanel;
 	}
 	
+	private void initilaizeTree(DefaultMutableTreeNode dataRoot)	{
+		//TODO aus datei laden?
+		
+		//alle steuergeräte
+		DefaultMutableTreeNode j623 = new DefaultMutableTreeNode("J623 Motorsteuergerät");
+		DefaultMutableTreeNode j624 = new DefaultMutableTreeNode("J624 Motorsteuergerät 2");
+		DefaultMutableTreeNode j104 = new DefaultMutableTreeNode("J104 ABS");
+		DefaultMutableTreeNode j234 = new DefaultMutableTreeNode("J234 Airbag");
+		DefaultMutableTreeNode j217 = new DefaultMutableTreeNode("J217 automatisches Getriebe");
+		DefaultMutableTreeNode j431 = new DefaultMutableTreeNode("J431 Leuchtweitenregelung");
+		DefaultMutableTreeNode j197 = new DefaultMutableTreeNode("J197 Niveauregelung");
+		DefaultMutableTreeNode j502 = new DefaultMutableTreeNode("J502 Reifendruckkontrolle");
+		DefaultMutableTreeNode j518 = new DefaultMutableTreeNode("J518 Zugang und Startberechtigung");
+		
+		//j623 motorsteuergerät messwerte
+		MessblockTreeNode j623_m001_01 = new MessblockTreeNode("001/1",6230011);
+		MessblockTreeNode j623_m002_04 = new MessblockTreeNode("002/4",6230024);
+		MessblockTreeNode j623_m003_03 = new MessblockTreeNode("003/3",6230033);
+		MessblockTreeNode j623_m010_04 = new MessblockTreeNode("010/4",6230104);
+		MessblockTreeNode j623_m004_02 = new MessblockTreeNode("004/2",6230042);
+		MessblockTreeNode j623_m006_04 = new MessblockTreeNode("006/4",6230064);
+		MessblockTreeNode j623_m007_01 = new MessblockTreeNode("007/1",6230071);
+		MessblockTreeNode j623_m007_02 = new MessblockTreeNode("007/2",6230072);
+		MessblockTreeNode j623_m007_03 = new MessblockTreeNode("007/3",6230073);
+		MessblockTreeNode j623_m007_04 = new MessblockTreeNode("007/4",6230074);
+		MessblockTreeNode j623_m007_05 = new MessblockTreeNode("007/5",6230075);
+		
+		//TODO weitere steuergeräte: messwerte eintragen
+		DefaultMutableTreeNode j624_default = new DefaultMutableTreeNode("empty");
+		DefaultMutableTreeNode j104_default = new DefaultMutableTreeNode("empty");
+		DefaultMutableTreeNode j234_default = new DefaultMutableTreeNode("empty");
+		DefaultMutableTreeNode j217_default = new DefaultMutableTreeNode("empty");
+		DefaultMutableTreeNode j431_default = new DefaultMutableTreeNode("empty");
+		DefaultMutableTreeNode j197_default = new DefaultMutableTreeNode("empty");
+		DefaultMutableTreeNode j502_default = new DefaultMutableTreeNode("empty");
+		DefaultMutableTreeNode j518_default = new DefaultMutableTreeNode("empty");
+
+		//j623 motorsteuergerät
+		j623.add(j623_m001_01);
+		j623.add(j623_m002_04);
+		j623.add(j623_m003_03);
+		j623.add(j623_m010_04);
+		j623.add(j623_m004_02);
+		j623.add(j623_m006_04);
+		j623.add(j623_m007_01);
+		j623.add(j623_m007_02);
+		j623.add(j623_m007_03);
+		j623.add(j623_m007_04);
+		j623.add(j623_m007_05);
+		
+		//TODO weitere steuergeräte: messwerte einfügen
+		j624.add(j624_default);
+		j104.add(j104_default);
+		j234.add(j234_default);
+		j217.add(j217_default);
+		j431.add(j431_default);
+		j197.add(j197_default);
+		j502.add(j502_default);
+		j518.add(j518_default);
+		
+		dataRoot.add(j623);
+		dataRoot.add(j624);
+		dataRoot.add(j104);
+		dataRoot.add(j234);
+		dataRoot.add(j217);
+		dataRoot.add(j431);
+		dataRoot.add(j197);
+		dataRoot.add(j502);
+		dataRoot.add(j518);
+	}
+	
 	public MainView(String title)
 	{
 		super(title);
@@ -55,56 +133,25 @@ public class MainView extends JFrame
 		// scrollpane holding the visualizations
 		JScrollPane graphListPane = new JScrollPane(graphPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		
-		for(int i = 0; i < 10; ++i)
-	    {
-			// TODO: replace GLJPanel with ParameterView once implemented
-			ParameterView panel = new ParameterView( "name " + i );
-	        panel.setVisualization(new GraphVisualization(2.5, 0, 45));
-	        panel.setMinimumSize(new Dimension(500, 300));
-	        graphPanel.add(panel);
-	        graphPanel.setMinimumSize(new Dimension(500, i * 400));
-	    }
+		
+		//@josepha
+//		for(int i = 0; i < 10; ++i)
+//	    {
+//			// TODO: replace GLJPanel with ParameterView once implemented
+//			ParameterView panel = new ParameterView( "name " + i );
+//	        panel.setVisualization(new GraphVisualization(2.5, 0, 45));
+//	        panel.setMinimumSize(new Dimension(500, 300));
+//	        graphPanel.add(panel);
+//	        graphPanel.setMinimumSize(new Dimension(500, i * 400));
+//	    }
+		
 		// fill tree
 		DefaultMutableTreeNode dataRoot = new DefaultMutableTreeNode("Steuergeräte");
-		dataBlocksTree = new JTree(dataRoot);
-		DefaultMutableTreeNode j623_01 = new DefaultMutableTreeNode("J623 Motorsteuergerät");
-		DefaultMutableTreeNode j624_02 = new DefaultMutableTreeNode("J624 Motorsteuergerät 2");
-		DefaultMutableTreeNode j104_03 = new DefaultMutableTreeNode("J104 ABS");
-		DefaultMutableTreeNode j234_04 = new DefaultMutableTreeNode("J234 Airbag");
-		DefaultMutableTreeNode j217_05 = new DefaultMutableTreeNode("J217 automatisches Getriebe");
-		DefaultMutableTreeNode j431_06 = new DefaultMutableTreeNode("J431 Leuchtweitenregelung");
-		DefaultMutableTreeNode j197_07 = new DefaultMutableTreeNode("J197 Niveauregelung");
-		DefaultMutableTreeNode j502_08 = new DefaultMutableTreeNode("J502 Reifendruckkontrolle");
-		DefaultMutableTreeNode j518_09 = new DefaultMutableTreeNode("J518 Zugang und Startberechtigung");
+		dataBlocksTree = new JTree(dataRoot);		
+		dataBlocksTree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
 		
-		DefaultMutableTreeNode j01_m00x_0x = new DefaultMutableTreeNode("00x/x Engine Speed Sensor");
-		DefaultMutableTreeNode j01_m00y_0x = new DefaultMutableTreeNode("00x/x Mass Airflow Sensor");
-//		DefaultMutableTreeNode j623_m001 = new DefaultMutableTreeNode("Intake manifold pressure");
-//		DefaultMutableTreeNode j623_m001 = new DefaultMutableTreeNode("Messblock 001");
-//		DefaultMutableTreeNode j623_m001 = new DefaultMutableTreeNode("Messblock 001");
-//		DefaultMutableTreeNode j623_m001 = new DefaultMutableTreeNode("Messblock 001");
-//		general.add(new DefaultMutableTreeNode("stuff"));
-//		DefaultMutableTreeNode engine = new DefaultMutableTreeNode("Engine");
-//		engine.add(new DefaultMutableTreeNode("stuff"));
-//		DefaultMutableTreeNode tires = new DefaultMutableTreeNode("Tires");
-//		tires.add(new DefaultMutableTreeNode("stuff"));
-//		DefaultMutableTreeNode environment = new DefaultMutableTreeNode("Environment");
-//		environment.add(new DefaultMutableTreeNode("stuff"));
-//		dataRoot.add(general);
-//		dataRoot.add(engine);
-//		dataRoot.add(tires);
-//		dataRoot.add(environment);
-		j623_01.add(j01_m00x_0x);
-		j623_01.add(j01_m00y_0x);
-		dataRoot.add(j623_01);
-		dataRoot.add(j624_02);
-		dataRoot.add(j104_03);
-		dataRoot.add(j234_04);
-		dataRoot.add(j217_05);
-		dataRoot.add(j431_06);
-		dataRoot.add(j197_07);
-		dataRoot.add(j502_08);
-		dataRoot.add(j518_09);
+		initilaizeTree(dataRoot);		
+		
 		dataBlocksTree.setMinimumSize(new Dimension(300,300));
 		dataBlocksTree.setPreferredSize(new Dimension(300,300));
 		dataBlocksTree.setMaximumSize(new Dimension(300,300));
@@ -185,18 +232,20 @@ public class MainView extends JFrame
 		buttonsPanel.add(buttonsLeftPanel);
 		buttonsPanel.add(buttonsRightPanel);
 		
-		JPanel treePanel = new JPanel();
-		treePanel.setLayout(new BoxLayout(treePanel, BoxLayout.PAGE_AXIS));		
-		//treePanel.setAlignmentX(LEFT_ALIGNMENT);
-		treePanel.add(dataBlocksTree);
-		treePanel.setAlignmentX(LEFT_ALIGNMENT);
+//		JPanel treePanel = new JPanel();
+//		treePanel.setLayout(new BoxLayout(treePanel, BoxLayout.PAGE_AXIS));		
+//		//treePanel.setAlignmentX(LEFT_ALIGNMENT);
+//		treePanel.add(dataBlocksTree);
+//		treePanel.setAlignmentX(LEFT_ALIGNMENT);
 		
 		JPanel leftContainer = new JPanel();
 		leftContainer.setLayout(new BoxLayout(leftContainer, BoxLayout.PAGE_AXIS));		
 		//leftContainer.setAlignmentX(RIGHT_ALIGNMENT);
 		//JPanel rightContainer = new JPanel();
 		
-		leftContainer.add(treePanel);
+		JScrollPane treeScrollPane = new JScrollPane(dataBlocksTree, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		
+		leftContainer.add(treeScrollPane);
 		leftContainer.add(buttonsPanel);
 		
 	    //rightContainer.add(graphListPane);
@@ -208,6 +257,47 @@ public class MainView extends JFrame
         mainSplitPane.setContinuousLayout(true);
 
         contentPane.add(mainSplitPane, BorderLayout.CENTER);
+        
+        //baumauswahl => graphen anzeigen
+        auswahlanzeigenButton.addActionListener(new ActionListener() 
+        {
+        	public void actionPerformed(ActionEvent e) 
+            {
+        		TreePath[] treePaths = dataBlocksTree.getSelectionPaths();
+        		
+        		for(int i=0;i<treePaths.length;i++)
+        		{
+        			DefaultMutableTreeNode node = (DefaultMutableTreeNode)treePaths[i].getLastPathComponent();
+        			if(node.isLeaf())
+        			{
+        				MessblockTreeNode messblockNode = (MessblockTreeNode)node;
+        				ParameterView panel = new ParameterView(node.toString());
+        		        panel.setVisualization(new GraphVisualization(2.5, 0, 45));
+        		        panel.setMinimumSize(new Dimension(500, 300));
+        		        graphPanel.add(panel);
+        		        graphPanel.setMinimumSize(new Dimension(500, i * 400));
+        		        
+        			}
+        		}      
+        		graphPanel.updateUI();
+            }   
+        });
+        
+        //aktive Graphen und Baumauswahl löschen        
+        auswahlloeschenButton.addActionListener(new ActionListener() 
+        {
+        	public void actionPerformed(ActionEvent e) 
+            {
+            	dataBlocksTree.clearSelection();
+            	int activePanelsCount = graphPanel.getComponentCount();
+            	
+            	for(int i =0;i<activePanelsCount;i++)
+            	{
+            		graphPanel.remove(0);
+            	}
+            	graphPanel.updateUI();
+            } 
+        });
 	}
 
 }
