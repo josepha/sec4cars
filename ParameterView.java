@@ -83,7 +83,10 @@ public class ParameterView extends AbstractView
 	private JButton narrowerButton;
 	private JButton broaderButton;
 	
-	private int priority;
+	private int priority;			//aktuelle priorität
+	private int priorityCount;		//prioritätscounter
+	private int priorityMax;		//priorität*activeViewCount
+	private int activeViewCount;	//aktive graphPanel
 	
 	public void setVisualization(AbstractVisualization visualization)
 	{		
@@ -98,6 +101,10 @@ public class ParameterView extends AbstractView
 		else colorLabel.setOpaque(false);
 	}
 	
+	public AbstractVisualization getVisualisation()	{
+		return linkedVisualization;
+	}
+	
 	// helper for updating textfields holding color range
 	public void updateRangeFields()
 	{
@@ -106,13 +113,16 @@ public class ParameterView extends AbstractView
 		maxVal.setText( String.format("%.3f", linkedVisualization.getMaxValue()) );
 	}
 
-	public ParameterView(String name) 
+	public ParameterView(String name, int count) 
 	{
 		// parameter view setup
 		super();
 		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		
 		priority = 1;
+		this.activeViewCount=count;
+		priorityCount=1;
+		priorityMax=activeViewCount*priority;
 		
 		// pass name to label
 		// spaces are used to shift text slightly to the right
@@ -220,6 +230,7 @@ public class ParameterView extends AbstractView
         
         // TODO: remove later on
         FPSAnimator animator = new FPSAnimator(glPanel, 60);
+        animator.add(glPanel); //???
         animator.start();
         add(Box.createHorizontalGlue());
            
@@ -363,6 +374,7 @@ public class ParameterView extends AbstractView
             	// increment label integer by one
             	priority =  Math.min(priority+1,10);
             	priorityField.setText(priority+"");
+            	priorityMax=activeViewCount*priority;
             }
         });
         
@@ -373,18 +385,19 @@ public class ParameterView extends AbstractView
             	// decrement label integer by one
             	priority =  Math.max(priority-1,1);
             	priorityField.setText(priority+"");
+            	priorityMax=activeViewCount*priority;
             }  
         });
         
-        priorityPlusButton.addActionListener(new ActionListener() 
-        {
-            public void actionPerformed(ActionEvent e) 
-            {
-            	// increment label integer by one
-            	int newVal = Math.min(Integer.parseInt(priorityField.getText())+1,10);
-            	priorityField.setText(String.valueOf(newVal));
-            }  
-        });
+//        priorityPlusButton.addActionListener(new ActionListener()  //???
+//        {
+//            public void actionPerformed(ActionEvent e) 
+//            {
+//            	// increment label integer by one
+//            	int newVal = Math.min(Integer.parseInt(priorityField.getText())+1,10);
+//            	priorityField.setText(String.valueOf(newVal));
+//            }  
+//        });
         
         minVal.addKeyListener(new KeyListener() 
         {
@@ -594,5 +607,17 @@ public class ParameterView extends AbstractView
 	private void update()
 	{
 		
+	}
+	
+	public float updateAndGetPriority()
+	{
+		priorityCount++;
+		System.out.println(nameLabel.getText()+" "+(float)priorityCount/(float)priorityMax);
+		return (float)priorityCount/(float)priorityMax;
+	}
+	
+	public void resetPriority()
+	{
+		priorityCount=0;
 	}
 }

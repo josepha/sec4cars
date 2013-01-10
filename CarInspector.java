@@ -27,6 +27,9 @@ public class CarInspector
 //        	ParameterView paraView = (ParameterView)mainView.getGraphPanel().getComponent(i);
 //        	paraView.graphVisu.update(0.5, 0.01);
 //        }
+        
+        UpdateThread getData = new UpdateThread(mainView);
+        getData.start();
 
     }
 }

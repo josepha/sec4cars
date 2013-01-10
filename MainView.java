@@ -21,6 +21,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTree;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreePath;
 //import javax.swing.*;
@@ -76,14 +77,14 @@ public class MainView extends JFrame
 		MessblockTreeNode j623_m007_05 = new MessblockTreeNode("007/5",6230075);
 		
 		//TODO weitere steuergeräte: messwerte eintragen
-		DefaultMutableTreeNode j624_default = new DefaultMutableTreeNode("empty");
-		DefaultMutableTreeNode j104_default = new DefaultMutableTreeNode("empty");
-		DefaultMutableTreeNode j234_default = new DefaultMutableTreeNode("empty");
-		DefaultMutableTreeNode j217_default = new DefaultMutableTreeNode("empty");
-		DefaultMutableTreeNode j431_default = new DefaultMutableTreeNode("empty");
-		DefaultMutableTreeNode j197_default = new DefaultMutableTreeNode("empty");
-		DefaultMutableTreeNode j502_default = new DefaultMutableTreeNode("empty");
-		DefaultMutableTreeNode j518_default = new DefaultMutableTreeNode("empty");
+		MessblockTreeNode j624_default = new MessblockTreeNode("empty",0);
+		MessblockTreeNode j104_default = new MessblockTreeNode("empty",0);
+		MessblockTreeNode j234_default = new MessblockTreeNode("empty",0);
+		MessblockTreeNode j217_default = new MessblockTreeNode("empty",0);
+		MessblockTreeNode j431_default = new MessblockTreeNode("empty",0);
+		MessblockTreeNode j197_default = new MessblockTreeNode("empty",0);
+		MessblockTreeNode j502_default = new MessblockTreeNode("empty",0);
+		MessblockTreeNode j518_default = new MessblockTreeNode("empty",0);
 
 		//j623 motorsteuergerät
 		j623.add(j623_m001_01);
@@ -117,6 +118,8 @@ public class MainView extends JFrame
 		dataRoot.add(j197);
 		dataRoot.add(j502);
 		dataRoot.add(j518);
+		
+		
 	}
 	
 	public MainView(String title)
@@ -148,9 +151,31 @@ public class MainView extends JFrame
 		// fill tree
 		DefaultMutableTreeNode dataRoot = new DefaultMutableTreeNode("Steuergeräte");
 		dataBlocksTree = new JTree(dataRoot);		
-		dataBlocksTree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
+		dataBlocksTree.setSelectionModel(new DefaultTreeSelectionModel(){	
+			private static final long serialVersionUID = 1L;				
+			 
+			@Override
+			public void addSelectionPath(TreePath treePath) {
+				DefaultMutableTreeNode node = (DefaultMutableTreeNode)treePath.getLastPathComponent();
+    			if(node.isLeaf()){
+    				super.addSelectionPath(treePath);
+    			}				
+			}	
+			
+			@Override
+			public void setSelectionPath(TreePath treePath) {
+				DefaultMutableTreeNode node = (DefaultMutableTreeNode)treePath.getLastPathComponent();
+    			if(node.isLeaf()){
+    				super.setSelectionPath(treePath);
+    			}				
+			}	
+
+			
+		});
 		
 		initilaizeTree(dataRoot);		
+		
+		dataBlocksTree.expandRow(0);
 		
 		dataBlocksTree.setMinimumSize(new Dimension(300,300));
 		dataBlocksTree.setPreferredSize(new Dimension(300,300));
@@ -258,32 +283,35 @@ public class MainView extends JFrame
 
         contentPane.add(mainSplitPane, BorderLayout.CENTER);
         
-        //baumauswahl => graphen anzeigen
+        //baumauswahl => graphpanel anzeigen
         auswahlanzeigenButton.addActionListener(new ActionListener() 
         {
         	public void actionPerformed(ActionEvent e) 
             {
+        		//aktive graphpanel löschen
+        		int activePanelsCount = graphPanel.getComponentCount();            	
+            	for(int i =0;i<activePanelsCount;i++)
+            	{
+            		graphPanel.remove(0);
+            	}
+        		
+            	//markierte knoten auslesen und graphpanel für jedes blatt starten
         		TreePath[] treePaths = dataBlocksTree.getSelectionPaths();
         		
         		for(int i=0;i<treePaths.length;i++)
         		{
-        			DefaultMutableTreeNode node = (DefaultMutableTreeNode)treePaths[i].getLastPathComponent();
-        			if(node.isLeaf())
-        			{
-        				MessblockTreeNode messblockNode = (MessblockTreeNode)node;
-        				ParameterView panel = new ParameterView(node.toString());
-        		        panel.setVisualization(new GraphVisualization(2.5, 0, 45));
-        		        panel.setMinimumSize(new Dimension(500, 300));
-        		        graphPanel.add(panel);
-        		        graphPanel.setMinimumSize(new Dimension(500, i * 400));
-        		        
-        			}
+        			MessblockTreeNode node = (MessblockTreeNode)treePaths[i].getLastPathComponent();        			
+        			ParameterView panel = new ParameterView(node.toString(),treePaths.length);
+        		    panel.setVisualization(new GraphVisualization(2.5, 0, 45));
+        		    panel.setMinimumSize(new Dimension(500, 300));
+        		    graphPanel.add(panel);
+        		    graphPanel.setMinimumSize(new Dimension(500, i * 400));      	
         		}      
         		graphPanel.updateUI();
             }   
         });
         
-        //aktive Graphen und Baumauswahl löschen        
+        //aktive Graphpanel und Baumauswahl löschen        
         auswahlloeschenButton.addActionListener(new ActionListener() 
         {
         	public void actionPerformed(ActionEvent e) 

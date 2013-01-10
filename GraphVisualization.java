@@ -120,11 +120,12 @@ public class GraphVisualization extends AbstractVisualization
 	{
 		// update has to be called repeatedly
 		// TODO: remove
-		//timer.update();
-		//double delta = timer.deltaTime();
-		double total = timer.currentTime();
+//		timer.update();
+//		double delta = timer.deltaTime();
+//		double total = timer.currentTime();
 		// @josepha:
-		this.update(Math.sin(1.2 * total) * Math.cos(0.2749 * total + 0.4) + Math.cos(0.1 * total), 0);
+//		this.update(Math.sin(1.2 * total) * Math.cos(0.2749 * total + 0.4) + Math.cos(0.1 * total), delta);
+		this.update(0,0);
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT);
 		
 		drawAxis();	
@@ -182,8 +183,8 @@ public class GraphVisualization extends AbstractVisualization
 	public void update(double newValue, double deltaTime) 
 	{
 
-		timer.update();
-		double delta2 = timer.deltaTime();
+		//timer.update();
+		//double delta2 = timer.deltaTime();
 
 		// update range to contain new value 
 		if(autoAdjust)
@@ -192,11 +193,11 @@ public class GraphVisualization extends AbstractVisualization
 			if(newValue > maxValue) setMaxValue(newValue);
 		}
 		// add new point to visible points list
-		Vec2 newPoint = new Vec2(delta2, newValue);
-		points.addFirst(newPoint);
+//		Vec2 newPoint = new Vec2(deltaTime, newValue);
+//		points.addFirst(newPoint);
 		//colors.addFirst(mapper.getInterpolatedColor(newValue));
 		// update total time
-		totalTime += delta2;
+		totalTime += deltaTime;
 		// remove oldest points when total time is reached
 		while(totalTime > timeFrame + borderOffset)
 		{
@@ -204,6 +205,14 @@ public class GraphVisualization extends AbstractVisualization
 			totalTime -= tail.x;
 			//colors.removeLast();
 		}
+	}
+	
+	public void addValue(float newValue)
+	{
+		timer.update();
+		double delta = timer.deltaTime();
+		Vec2 newPoint = new Vec2(delta, newValue);
+		points.addFirst(newPoint);
 	}
 
 	@Override
