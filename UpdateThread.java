@@ -31,7 +31,7 @@ public class UpdateThread extends Thread {
 	        		}	        	
 	        	}
 	        	ParameterView paraViewToUpdate = (ParameterView)linkedMainView.getGraphPanel().getComponent(maxPriorityID);
-	        	GraphVisualization visu = (GraphVisualization)paraViewToUpdate.getVisualisation();
+	        	GraphVisualization visu = (GraphVisualization)paraViewToUpdate.getVisualisation();	        	
 	        	visu.addValue((float)Math.random());
 	        	paraViewToUpdate.resetPriority();
 	        }

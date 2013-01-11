@@ -1,3 +1,5 @@
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -38,7 +40,7 @@ public class GraphVisualization extends AbstractVisualization
 	private GraphColor graphColor;
 	private GraphColor bgColor;
 	private GraphColor axisColor;
-	
+
 	// constructors
 	//public ParameterGraph(double minValue, double maxValue, double optimalValue, double timeFrame, GraphColor bgColor, GraphColor axisColor, GraphColor goodColor, GraphColor badColor)
 	public GraphVisualization(double minValue, double maxValue, double optimalValue, double timeFrame, GraphColor bgColor, GraphColor axisColor, GraphColor graphColor)
@@ -60,7 +62,9 @@ public class GraphVisualization extends AbstractVisualization
 		totalTime = 0;
 		timer = new FrameTimer();
 		points = new LinkedList<Vec2>();
-		//colors = new LinkedList<GraphColor>();
+		//colors = new LinkedList<GraphColor>();		
+		
+	
 	}
 	
 	// default colors
@@ -75,6 +79,7 @@ public class GraphVisualization extends AbstractVisualization
 		this(-range/2, range/2, optimalValue, timeFrame);
 		
 	}
+	
 	
 	// setters
 	public void setMinValue(double minValue)
@@ -142,7 +147,7 @@ public class GraphVisualization extends AbstractVisualization
 		graphColor.setDrawColor(gl);
 		Vec2 point;
 		
-		gl.glLineWidth(1.5f);
+		gl.glLineWidth(1.0f);
 		gl.glBegin(GL.GL_LINE_STRIP);
 		while(iterPoints.hasNext())
 		{
@@ -210,6 +215,9 @@ public class GraphVisualization extends AbstractVisualization
 	public void addValue(float newValue)
 	{
 		timer.update();
+		//TODO: log-file schreiben
+		//String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
+		//System.out.println(timeStamp+" "+newValue);
 		double delta = timer.deltaTime();
 		Vec2 newPoint = new Vec2(delta, newValue);
 		points.addFirst(newPoint);

@@ -88,6 +88,8 @@ public class ParameterView extends AbstractView
 	private int priorityMax;		//priorität*activeViewCount
 	private int activeViewCount;	//aktive graphPanel
 	
+	private int ID;
+	
 	public void setVisualization(AbstractVisualization visualization)
 	{		
 		glPanel.addGLEventListener(visualization);
@@ -113,7 +115,7 @@ public class ParameterView extends AbstractView
 		maxVal.setText( String.format("%.3f", linkedVisualization.getMaxValue()) );
 	}
 
-	public ParameterView(String name, int count) 
+	public ParameterView(String name, int count, int panelID) 
 	{
 		// parameter view setup
 		super();
@@ -123,6 +125,8 @@ public class ParameterView extends AbstractView
 		this.activeViewCount=count;
 		priorityCount=1;
 		priorityMax=activeViewCount*priority;
+		
+		this.ID=panelID;
 		
 		// pass name to label
 		// spaces are used to shift text slightly to the right
@@ -587,11 +591,11 @@ public class ParameterView extends AbstractView
         {
             public void actionPerformed(ActionEvent e) 
             {
-            	Container parent = thisView.getParent();
+            	JPanel parent = (JPanel)thisView.getParent();
             	// remove view
             	parent.remove(thisView);
-            	parent.revalidate();
-            	// TODO: hopefully GC cleans up eventually... I hate Java!
+            	//parent.revalidate();
+            	parent.updateUI();
             }  
         });
         
@@ -612,12 +616,17 @@ public class ParameterView extends AbstractView
 	public float updateAndGetPriority()
 	{
 		priorityCount++;
-		System.out.println(nameLabel.getText()+" "+(float)priorityCount/(float)priorityMax);
+//		System.out.println(nameLabel.getText()+" "+(float)priorityCount/(float)priorityMax);
 		return (float)priorityCount/(float)priorityMax;
 	}
 	
 	public void resetPriority()
 	{
 		priorityCount=0;
+	}
+	
+	public int getID()
+	{
+		return ID;
 	}
 }

@@ -5,6 +5,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 
 import javax.media.opengl.GLCapabilities;
 import javax.media.opengl.GLProfile;
@@ -13,6 +15,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -20,6 +23,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.MutableTreeNode;
@@ -41,6 +46,10 @@ public class MainView extends JFrame
 	
 	// tree containing car data types
 	private JTree dataBlocksTree;
+	
+	private JFileChooser fileChooser;
+	boolean aufnahmeAktiv;
+	File aufnahmeFile;
 	
 	// getter für graphPanel, den Container, der die Graphansichten enthält
 	// @josepha: hier über .add die Visualisierungen der Motorblöcke hinzufügen
@@ -130,6 +139,14 @@ public class MainView extends JFrame
 		//setExtendedState(JFrame.MAXIMIZED_BOTH);
 		// quit program when window is closed
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+        fileChooser = new JFileChooser();
+        fileChooser.setMultiSelectionEnabled(false);
+        fileChooser.setAcceptAllFileFilterUsed(false);
+        fileChooser.setFileFilter(new FileNameExtensionFilter("log Datei","log"));
+        
+        aufnahmeFile=null;
+        aufnahmeAktiv= false;
 		
 		graphPanel = new JPanel();
 		graphPanel.setLayout( new BoxLayout(graphPanel, BoxLayout.Y_AXIS) );
@@ -301,7 +318,7 @@ public class MainView extends JFrame
         		for(int i=0;i<treePaths.length;i++)
         		{
         			MessblockTreeNode node = (MessblockTreeNode)treePaths[i].getLastPathComponent();        			
-        			ParameterView panel = new ParameterView(node.toString(),treePaths.length);
+        			ParameterView panel = new ParameterView(node.toString(),treePaths.length, node.getNodeID());
         		    panel.setVisualization(new GraphVisualization(2.5, 0, 45));
         		    panel.setMinimumSize(new Dimension(500, 300));
         		    graphPanel.add(panel);
@@ -324,6 +341,48 @@ public class MainView extends JFrame
             		graphPanel.remove(0);
             	}
             	graphPanel.updateUI();
+            } 
+        });
+        
+        aufnahmeButton.addActionListener(new ActionListener() 
+        {
+        	public void actionPerformed(ActionEvent e) 
+            {
+        		if(aufnahmeAktiv=false)   //logging starten   
+        		{
+        			//ExampleFileFilter filter = new ExampleFileFilter();
+        			//filter.addExtension("jpg");
+        			int returnVal = fileChooser.showSaveDialog(null);
+        			if (returnVal == JFileChooser.APPROVE_OPTION) {
+        				aufnahmeFile = fileChooser.getSelectedFile();
+        				//This is where a real application would open the file.
+        				//log.append("Opening: " + file.getName() + "." + newline);
+        				if(aufnahmeFile.exists())
+        				{
+        					System.out.println("File: "+aufnahmeFile.toString());
+        				}
+        				else //log-datei anlegen
+        				{                    	
+        					if(!aufnahmeFile.getPath().toLowerCase().endsWith(".log"))
+        					{
+        						aufnahmeFile = new File(aufnahmeFile.getPath() + ".log");
+        					}
+        					try {
+        						aufnahmeFile.createNewFile();
+        					} catch (IOException e1) {
+        						// TODO Auto-generated catch block
+        						e1.printStackTrace();
+        					}
+        					System.out.println("new File: "+aufnahmeFile.toString());
+        				}
+        				aufnahmeAktiv=true;
+        			}
+                }
+        		else //logging stoppen
+        		{
+        			aufnahmeAktiv=false;
+        			aufnahmeFile=null;
+        		}
             } 
         });
 	}
