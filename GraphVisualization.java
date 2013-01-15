@@ -5,7 +5,12 @@ import java.util.LinkedList;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
+import javax.media.opengl.GL2ES2;
 import javax.media.opengl.GLAutoDrawable;
+
+import com.jogamp.opengl.util.gl2.GLUT;
+
+
 // plot of 2D point data
 // color mapping currently disabled
 // TODO: unse?
@@ -40,6 +45,10 @@ public class GraphVisualization extends AbstractVisualization
 	private GraphColor graphColor;
 	private GraphColor bgColor;
 	private GraphColor axisColor;
+	
+	private GLUT glut;
+	
+
 
 	// constructors
 	//public ParameterGraph(double minValue, double maxValue, double optimalValue, double timeFrame, GraphColor bgColor, GraphColor axisColor, GraphColor goodColor, GraphColor badColor)
@@ -62,7 +71,9 @@ public class GraphVisualization extends AbstractVisualization
 		totalTime = 0;
 		timer = new FrameTimer();
 		points = new LinkedList<Vec2>();
-		//colors = new LinkedList<GraphColor>();		
+		//colors = new LinkedList<GraphColor>();	
+		
+		glut = new GLUT();
 		
 	
 	}
@@ -135,6 +146,18 @@ public class GraphVisualization extends AbstractVisualization
 		
 		drawAxis();	
 		drawGraph(gl);
+		drawText();
+	}
+	
+	private void drawText()
+	{		
+		gl.glRasterPos2f(0.75f, 0.92f);
+		graphColor.setDrawColor(gl);		
+		glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, points.getFirst().y+"");
+		gl.glRasterPos2f(-0.98f, 0.92f);
+		glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, maxValue+"");
+		gl.glRasterPos2f(-0.98f, -0.97f);
+		glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, minValue+"");
 	}
 	
 	// draw graph as line strip

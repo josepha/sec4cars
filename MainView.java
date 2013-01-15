@@ -126,9 +126,13 @@ public class MainView extends JFrame
 		dataRoot.add(j431);
 		dataRoot.add(j197);
 		dataRoot.add(j502);
-		dataRoot.add(j518);
+		dataRoot.add(j518);	
 		
-		
+	}
+	
+	private void changeTitle(String newTitle)
+	{
+	    this.setTitle(newTitle);
 	}
 	
 	public MainView(String title)
@@ -344,15 +348,16 @@ public class MainView extends JFrame
             } 
         });
         
+        
         aufnahmeButton.addActionListener(new ActionListener() 
         {
         	public void actionPerformed(ActionEvent e) 
             {
-        		if(aufnahmeAktiv=false)   //logging starten   
+        		if(aufnahmeAktiv==false)   //logging starten   
         		{
         			//ExampleFileFilter filter = new ExampleFileFilter();
         			//filter.addExtension("jpg");
-        			int returnVal = fileChooser.showSaveDialog(null);
+        			int returnVal = fileChooser.showOpenDialog(null);
         			if (returnVal == JFileChooser.APPROVE_OPTION) {
         				aufnahmeFile = fileChooser.getSelectedFile();
         				//This is where a real application would open the file.
@@ -376,12 +381,17 @@ public class MainView extends JFrame
         					System.out.println("new File: "+aufnahmeFile.toString());
         				}
         				aufnahmeAktiv=true;
+        			    ((JButton) e.getSource()).setText("stoppen");  //schön is anders
+        			    changeTitle("CarInspector "+aufnahmeFile.toString());
+        			    
         			}
                 }
         		else //logging stoppen
         		{
         			aufnahmeAktiv=false;
         			aufnahmeFile=null;
+        			((JButton) e.getSource()).setText("starten");  
+        			changeTitle("CarInspector");
         		}
             } 
         });
