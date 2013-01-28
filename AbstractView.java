@@ -10,10 +10,14 @@ public abstract class AbstractView extends JPanel
 	// update method called by contained graph modules
 	public abstract void updateRangeFields();
 	
+	public abstract void resetPriority();
+	public abstract float updateAndGetPriority();
+	public abstract String getID();
+	public abstract AbstractVisualization getVisualisation();
+	
 	public AbstractView()
 	{
 		// call JPanel constructor
 		super();
-	}
-	
+	}	
 }

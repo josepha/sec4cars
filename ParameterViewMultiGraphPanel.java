@@ -2,36 +2,21 @@
 // will contain UI components to control output behavior 
 // TODO: extend
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import javax.media.opengl.GLCapabilities;
 import javax.media.opengl.GLProfile;
 import javax.media.opengl.awt.GLJPanel;
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JColorChooser;
-import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
+
 
 import com.jogamp.opengl.util.FPSAnimator;
 
@@ -59,10 +44,7 @@ public class ParameterViewMultiGraphPanel extends AbstractView
 	private JLayeredPane layeredPane;
 	private JPanel buttonPanel;
 	
-	private int priority;			//aktuelle priorität
-	private int priorityCount;		//prioritätscounter
-	private int priorityMax;		//priorität*activeViewCount
-	private int activeViewCount;	//aktive graphPanel
+
 	
 	private String ID;
 	
@@ -91,18 +73,13 @@ public class ParameterViewMultiGraphPanel extends AbstractView
 //		maxVal.setText( String.format("%.3f", linkedVisualization.getMaxValue()) );
 	}
 
-	public ParameterViewMultiGraphPanel(String name, int count, String panelID) 
+	public ParameterViewMultiGraphPanel() 
 	{
 		// parameter view setup
 		super();
 		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		
-		priority = 1;
-		this.activeViewCount=count;
-		priorityCount=1;
-		priorityMax=activeViewCount*priority;
 		
-		this.ID=panelID;		
 
 		int buttonSize = 28;
 
@@ -130,6 +107,7 @@ public class ParameterViewMultiGraphPanel extends AbstractView
         glPanel.setMinimumSize(new Dimension(50,500));
         glPanel.setPreferredSize(new Dimension(400,500));
         glPanel.setMaximumSize(new Dimension(1500,500));
+ 
         
         // TODO: remove later on
         FPSAnimator animator = new FPSAnimator(glPanel, 60);
@@ -261,23 +239,29 @@ public class ParameterViewMultiGraphPanel extends AbstractView
 	
 	private void update()
 	{
+	
+	}
+
+	@Override
+	public void resetPriority() {
+		// TODO Auto-generated method stub
 		
 	}
-	
-	public float updateAndGetPriority()
-	{
-		priorityCount++;
-//		System.out.println(nameLabel.getText()+" "+(float)priorityCount/(float)priorityMax);
-		return (float)priorityCount/(float)priorityMax;
+
+	@Override
+	public float updateAndGetPriority() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
+
+	@Override
+	public String getID() {
+		// TODO Auto-generated method stub
+		return null;
+	}	
+
 	
-	public void resetPriority()
-	{
-		priorityCount=0;
-	}
+
 	
-	public String getID()
-	{
-		return ID;
-	}
+
 }

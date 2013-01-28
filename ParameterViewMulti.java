@@ -137,22 +137,22 @@ public class ParameterViewMulti extends AbstractView
 		nameLabel.setHorizontalAlignment(SwingConstants.LEADING);
 		int buttonSize = 28;
 		// set up close button
-		ImageIcon close = new ImageIcon("close.png");
-		closeButton = new JButton(close);
-		closeButton.setMinimumSize(new Dimension(24,24));
-		closeButton.setPreferredSize(new Dimension(24, 24));
-		closeButton.setMaximumSize(new Dimension(24, 24));
+//		ImageIcon close = new ImageIcon("close.png");
+//		closeButton = new JButton(close);
+//		closeButton.setMinimumSize(new Dimension(24,24));
+//		closeButton.setPreferredSize(new Dimension(24, 24));
+//		closeButton.setMaximumSize(new Dimension(24, 24));
 		// set up switch buttons
-		ImageIcon switchUp = new ImageIcon("switchUp.png");
-		ImageIcon switchDown = new ImageIcon("switchDown.png");
-		switchUpButton = new JButton(switchUp);
-		switchUpButton.setMinimumSize(new Dimension(buttonSize,buttonSize));
-		switchUpButton.setPreferredSize(new Dimension(buttonSize, buttonSize));
-		switchUpButton.setMaximumSize(new Dimension(buttonSize, buttonSize));
-		switchDownButton = new JButton(switchDown);
-		switchDownButton.setMinimumSize(new Dimension(buttonSize,buttonSize));
-		switchDownButton.setPreferredSize(new Dimension(buttonSize, buttonSize));
-		switchDownButton.setMaximumSize(new Dimension(buttonSize, buttonSize));
+//		ImageIcon switchUp = new ImageIcon("switchUp.png");
+//		ImageIcon switchDown = new ImageIcon("switchDown.png");
+//		switchUpButton = new JButton(switchUp);
+//		switchUpButton.setMinimumSize(new Dimension(buttonSize,buttonSize));
+//		switchUpButton.setPreferredSize(new Dimension(buttonSize, buttonSize));
+//		switchUpButton.setMaximumSize(new Dimension(buttonSize, buttonSize));
+//		switchDownButton = new JButton(switchDown);
+//		switchDownButton.setMinimumSize(new Dimension(buttonSize,buttonSize));
+//		switchDownButton.setPreferredSize(new Dimension(buttonSize, buttonSize));
+//		switchDownButton.setMaximumSize(new Dimension(buttonSize, buttonSize));
 
 		// setup autoAdjust gui
 		autoAdjustBox = new JCheckBox("Auto-Skalierung");
@@ -232,20 +232,19 @@ public class ParameterViewMulti extends AbstractView
         add(new JSeparator());
         int minDist = 7;
         // set alignments and add components
-        nameLabel.setAlignmentX(LEFT_ALIGNMENT);
-        titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.LINE_AXIS));
-        titlePanel.setMinimumSize(new Dimension(50, 30));
-        titlePanel.setPreferredSize(new Dimension(400, 30));
-        titlePanel.setMaximumSize(new Dimension(1500, 30));
-        titlePanel.add(Box.createHorizontalStrut(minDist));
-        titlePanel.add(nameLabel);
-        titlePanel.add(Box.createHorizontalGlue());
-        titlePanel.add(Box.createHorizontalStrut(minDist));
-        titlePanel.add(closeButton);
-        titlePanel.setAlignmentX(LEFT_ALIGNMENT);
-        add(titlePanel);
-        add(buttonsPanel);
-        add(Box.createHorizontalGlue());
+//        nameLabel.setAlignmentX(LEFT_ALIGNMENT);
+//        titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.LINE_AXIS));
+//        titlePanel.setMinimumSize(new Dimension(50, 30));
+//        titlePanel.setPreferredSize(new Dimension(400, 30));
+//        titlePanel.setMaximumSize(new Dimension(1500, 30));
+//        titlePanel.add(Box.createHorizontalStrut(minDist));
+        buttonsPanel.add(nameLabel);
+//        titlePanel.add(Box.createHorizontalGlue());
+//        titlePanel.add(Box.createHorizontalStrut(minDist));
+//        //titlePanel.add(closeButton);
+//        titlePanel.setAlignmentX(LEFT_ALIGNMENT);
+        
+        
 //       layeredPane = new JLayeredPane();
 //        layeredPane.setLayout(new BoxLayout(layeredPane, BoxLayout.LINE_AXIS));
 //       //com.sun.lwuit.layouts.Layout
@@ -261,10 +260,11 @@ public class ParameterViewMulti extends AbstractView
 //        //testLabel.setAlignmentX(Box.CENTER_ALIGNMENT);
 //        //TODO: add layered labels of min, max and units
 //        add(layeredPane);
-        buttonsPanel.setAlignmentX(LEFT_ALIGNMENT);
+        buttonsPanel.setAlignmentX(RIGHT_ALIGNMENT);
         add(Box.createHorizontalGlue());
         buttonsPanel.add(Box.createHorizontalStrut(minDist));
         buttonsPanel.add(colorLabel);
+        
         buttonsPanel.add(Box.createHorizontalGlue());
         buttonsPanel.add(Box.createHorizontalStrut(minDist));
         buttonsPanel.add(priorityPlusButton);
@@ -281,11 +281,14 @@ public class ParameterViewMulti extends AbstractView
         buttonsPanel.add(Box.createHorizontalStrut(minDist));
         buttonsPanel.add(autoAdjustBox);
         buttonsPanel.add(Box.createHorizontalGlue());
+//        buttonsPanel.add(Box.createHorizontalStrut(minDist));
+//        buttonsPanel.add(switchUpButton);
+//        buttonsPanel.add(switchDownButton);
         buttonsPanel.add(Box.createHorizontalStrut(minDist));
-        buttonsPanel.add(switchUpButton);
-        buttonsPanel.add(switchDownButton);
-        buttonsPanel.add(Box.createHorizontalStrut(minDist));
+        add(buttonsPanel);
+        add(Box.createHorizontalGlue());
         add(Box.createVerticalStrut(minDist));
+        setAlignmentX(LEFT_ALIGNMENT);
         
         
         //*********************************************************************
@@ -294,71 +297,71 @@ public class ParameterViewMulti extends AbstractView
         final ParameterViewMulti thisView = this;
         // sorting of components DOWN
         // TODO: is there an easier or faster way of achieving this?
-        switchDownButton.addActionListener(new ActionListener() 
-        {
-            public void actionPerformed(ActionEvent e) 
-            {
-            	// get components of parent view (the JScrollPane of MainView)
-            	Container parent = thisView.getParent();
-            	// save components
-            	Component[] components = parent.getComponents();
-            	int len = components.length;
-            	// out of bounds
-            	if(components[len-1] == thisView) return;
-            	// clear all components
-            	thisView.getParent().removeAll();
-            	// search for this component in list
-            	// if found -> swap with successor
-            	for(int i=0; i<len; ++i)
-            	{
-            		Component temp = components[i];
-            		if(temp == thisView)
-            		{
-            			 components[i] = components[i+1];
-                         components[i+1] = temp;
-                         System.out.format("Swapped items &d and %d\n", i, i+1);
-                         break;  
-            		}
-            	}
-            	// add components again
-            	for (Component comp : components)
-                {
-                    parent.add(comp);
-                }
-            	// lay out components again
-            	parent.revalidate();
-            } 
-        });
-        
-        // sorting of components UP
-        switchUpButton.addActionListener(new ActionListener() 
-        {
-            public void actionPerformed(ActionEvent e) 
-            {
-            	Container parent = thisView.getParent();
-            	Component[] components = parent.getComponents();
-            	int len = components.length;
-            	// out of bounds
-            	if(components[1] == thisView) return;
-            	thisView.getParent().removeAll();
-            	for(int i=0; i<len; ++i)
-            	{
-            		Component temp = components[i];
-            		if(temp == thisView)
-            		{
-            			 components[i] = components[i-1];
-                         components[i-1] = temp;
-                         System.out.format("Swapped items &d and %d\n", i, i+1);
-                         break;  
-            		}
-            	}
-            	for (Component comp : components)
-                {
-                    parent.add(comp);
-                }       
-            	thisView.getParent().validate(); 
-            }   
-        });
+//        switchDownButton.addActionListener(new ActionListener() 
+//        {
+//            public void actionPerformed(ActionEvent e) 
+//            {
+//            	// get components of parent view (the JScrollPane of MainView)
+//            	Container parent = thisView.getParent();
+//            	// save components
+//            	Component[] components = parent.getComponents();
+//            	int len = components.length;
+//            	// out of bounds
+//            	if(components[len-1] == thisView) return;
+//            	// clear all components
+//            	thisView.getParent().removeAll();
+//            	// search for this component in list
+//            	// if found -> swap with successor
+//            	for(int i=0; i<len; ++i)
+//            	{
+//            		Component temp = components[i];
+//            		if(temp == thisView)
+//            		{
+//            			 components[i] = components[i+1];
+//                         components[i+1] = temp;
+//                         //System.out.format("Swapped items &d and %d\n", i, i+1);
+//                         break;  
+//            		}
+//            	}
+//            	// add components again
+//            	for (Component comp : components)
+//                {
+//                    parent.add(comp);
+//                }
+//            	// lay out components again
+//            	parent.revalidate();
+//            } 
+//        });
+//        
+//        // sorting of components UP
+//        switchUpButton.addActionListener(new ActionListener() 
+//        {
+//            public void actionPerformed(ActionEvent e) 
+//            {
+//            	Container parent = thisView.getParent();
+//            	Component[] components = parent.getComponents();
+//            	int len = components.length;
+//            	// out of bounds
+//            	if(components[1] == thisView) return;
+//            	thisView.getParent().removeAll();
+//            	for(int i=0; i<len; ++i)
+//            	{
+//            		Component temp = components[i];
+//            		if(temp == thisView)
+//            		{
+//            			 components[i] = components[i-1];
+//                         components[i-1] = temp;
+//                         //System.out.format("Swapped items &d and %d\n", i, i+1);
+//                         break;  
+//            		}
+//            	}
+//            	for (Component comp : components)
+//                {
+//                    parent.add(comp);
+//                }       
+//            	thisView.getParent().validate(); 
+//            }   
+//        });
         
         priorityPlusButton.addActionListener(new ActionListener() 
         {
@@ -489,17 +492,17 @@ public class ParameterViewMulti extends AbstractView
         
         
         
-        closeButton.addActionListener(new ActionListener() 
-        {
-            public void actionPerformed(ActionEvent e) 
-            {
-            	JPanel parent = (JPanel)thisView.getParent();
-            	// remove view
-            	parent.remove(thisView);
-            	//parent.revalidate();
-            	parent.updateUI();
-            }  
-        });
+//        closeButton.addActionListener(new ActionListener() 
+//        {
+//            public void actionPerformed(ActionEvent e) 
+//            {
+//            	JPanel parent = (JPanel)thisView.getParent();
+//            	// remove view
+//            	parent.remove(thisView);
+//            	//parent.revalidate();
+//            	parent.updateUI();
+//            }  
+//        });
         
         autoAdjustBox.addActionListener(new ActionListener() 
         {

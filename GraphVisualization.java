@@ -29,6 +29,10 @@ public class GraphVisualization extends AbstractVisualization {
 	private FrameTimer timer;
 	// points of the graph mapped to fit in value range
 	private LinkedList<Vec2> points;
+	private LinkedList<Vec2> buffer1;
+	private LinkedList<Vec2> buffer2;
+	private boolean buffer1active;
+	private int bufferCount=0;
 	// mapped colors for points
 	// private LinkedList<GraphColor> colors;
 	private double scaleOffset = 0.02;
@@ -63,6 +67,10 @@ public class GraphVisualization extends AbstractVisualization {
 		this.bgColor = bgColor;
 		this.axisColor = axisColor;
 		this.graphColor = graphColor;
+		
+		buffer1 = new LinkedList<Vec2>();
+		buffer2 = new LinkedList<Vec2>();
+		buffer1active=true;
 
 		// this.mapper = new ColorMapper(optimalValue, minValue, maxValue,
 		// Interpolator.CUBIC_FIT, goodColor, badColor);
@@ -146,7 +154,30 @@ public class GraphVisualization extends AbstractVisualization {
 	}
 
 	// draw graph as line strip
-	private void drawGraph(GL2 gl) {
+	private void drawGraph(GL2 gl)
+	{
+		
+		if(buffer1active)
+		{
+			while(!buffer2.isEmpty())
+			{
+				Vec2 point = buffer2.getLast();
+				points.addFirst(point);
+				buffer2.removeLast();				
+			}
+			//buffer1active=false;
+		}
+		else //buffer2 aktiv
+		{
+			while(!buffer1.isEmpty())
+			{
+				Vec2 point = buffer1.getLast();
+				points.addFirst(point);
+				buffer1.removeLast();				
+			}
+			//buffer1active=true;
+		}
+		
 		double totalX = 1.0;
 		iterPoints = points.iterator();
 		// Iterator<GraphColor> iterColors = colors.iterator();
@@ -187,6 +218,13 @@ public class GraphVisualization extends AbstractVisualization {
 			totalX -= point.x / timeFrame;
 		}
 		gl.glEnd();
+		
+		// remove oldest points when total time is reached
+		while (totalTime > timeFrame + borderOffset)
+		{
+			Vec2 tail = points.removeLast();
+			if(tail.x<10)totalTime -= tail.x; //timer gibt am anfang müll aus
+		}
 
 	}
 
@@ -213,8 +251,26 @@ public class GraphVisualization extends AbstractVisualization {
 		timer.update();
 
 		double delta = timer.deltaTime();
+		if(delta>10)delta=0.5;
 		Vec2 newPoint = new Vec2(delta, newValue);
-		points.addFirst(newPoint);
+		//points.addFirst(newPoint);
+		
+		if(buffer1active)
+		{			
+			buffer1.addFirst(newPoint);
+		}
+		else
+		{			
+			buffer2.addFirst(newPoint);
+		}
+		
+		bufferCount++;
+		if(bufferCount>0) //switch buffer nach x werten
+		{
+			bufferCount=0;
+			buffer1active=!buffer1active;
+		}
+		
 
 		// update range to contain new value
 		if (autoAdjust) {
@@ -225,13 +281,8 @@ public class GraphVisualization extends AbstractVisualization {
 		}
 
 		// update total time
-		totalTime += delta;
-		// remove oldest points when total time is reached
-		while (totalTime > timeFrame + borderOffset) {
-			Vec2 tail = points.removeLast();
-			totalTime -= tail.x;
-			// colors.removeLast();
-		}
+		if(delta<10)totalTime += delta; //timer gibt am anfang müll aus
+
 	}
 
 	@Override
@@ -279,6 +330,12 @@ public class GraphVisualization extends AbstractVisualization {
 	@Override
 	public void setTimeFrame(double range) {
 		this.timeFrame = range;
+	}
+
+	@Override
+	public void addValue(float f, int i) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -30,9 +30,12 @@ public class GraphVisualizationMulti extends AbstractVisualization
 	private final double borderOffset = 0.1;
 	// utility to calculate time between frames
 	// TODO: remove later on
-	private FrameTimer timer;
+	private FrameTimer[] timer;
 	// points of the graph mapped to fit in value range
 	private LinkedList<Vec2> points;
+	private LinkedList<Vec2> buffer1;
+	private LinkedList<Vec2> buffer2;
+	private boolean buffer1active;
 	// mapped colors for points
 	//private LinkedList<GraphColor> colors;
 	private double scaleOffset = 0.02;
@@ -48,6 +51,7 @@ public class GraphVisualizationMulti extends AbstractVisualization
 	private GLUT glut;
 	
 	private Iterator<Vec2> iterPoints;
+	private int bufferCount;
 
 	// constructors
 	//public ParameterGraph(double minValue, double maxValue, double optimalValue, double timeFrame, GraphColor bgColor, GraphColor axisColor, GraphColor goodColor, GraphColor badColor)
@@ -62,6 +66,7 @@ public class GraphVisualizationMulti extends AbstractVisualization
 		this.maxValue = new double[anzahl];
 		this.graphColor = new GraphColor[anzahl];
 		this.valueRange = new double[anzahl];
+		this.timer = new FrameTimer[anzahl];
 		
 		//this.minValue = minValue;
 		//this.maxValue = maxValue;
@@ -75,8 +80,12 @@ public class GraphVisualizationMulti extends AbstractVisualization
 		//this.mapper = new ColorMapper(optimalValue, minValue, maxValue, Interpolator.CUBIC_FIT, goodColor, badColor);
 		
 		totalTime = 0;
-		timer = new FrameTimer();
+		buffer1active = true;
+		bufferCount=0;
+		
 		points = new LinkedList<Vec2>();
+		buffer1 = new LinkedList<Vec2>();
+		buffer2 = new LinkedList<Vec2>();
 		//colors = new LinkedList<GraphColor>();
 		
 		//System.out.println(anzahl+"");
@@ -88,6 +97,7 @@ public class GraphVisualizationMulti extends AbstractVisualization
 			this.graphColor[i] = GraphColor.random();
 			//System.out.println(i+" "+graphColor.toString());
 			this.valueRange[i] = maxValue - minValue;
+			this.timer[i] = new FrameTimer();
 		}
 	
 	}
@@ -102,9 +112,7 @@ public class GraphVisualizationMulti extends AbstractVisualization
 	public GraphVisualizationMulti(int anzahl, double range, double optimalValue, double timeFrame, GLUT glut_)
 	{		
 		this(-range/2, range/2, optimalValue, timeFrame, anzahl);
-		this.glut=glut_;			
-
-		
+		this.glut=glut_;				
 	}
 
 	
@@ -175,9 +183,30 @@ public class GraphVisualizationMulti extends AbstractVisualization
 	// draw graph as line strip
 	private void drawGraph(GL2 gl)
 	{
-		double totalX = 1.0;
+		if(buffer1active)
+		{
+			while(!buffer2.isEmpty())
+			{
+				Vec2 point = buffer2.getLast();
+				points.addFirst(point);
+				buffer2.removeLast();				
+			}
+			//buffer1active=false;
+		}
+		else //buffer2 aktiv
+		{
+			while(!buffer1.isEmpty())
+			{
+				Vec2 point = buffer1.getLast();
+				points.addFirst(point);
+				buffer1.removeLast();				
+			}
+			//buffer1active=true;
+		}
+		
 		for(int i=0;i<anzahl;i++)
 		{
+			double totalX = 1.0;
 			iterPoints = points.iterator();		
 			graphColor[i].setDrawColor(gl);	
 
@@ -187,8 +216,8 @@ public class GraphVisualizationMulti extends AbstractVisualization
 			gl.glBegin(GL.GL_LINE_STRIP);
 			while(iterPoints.hasNext())
 			{
-				try
-				{
+				//try
+				//{
 					point = iterPoints.next();
 					if(point.getID()==i)
 					{
@@ -201,9 +230,8 @@ public class GraphVisualizationMulti extends AbstractVisualization
 						gl.glVertex2d(2*totalX-1, 2*mappedValue-1);
 						totalX -= point.x / timeFrame;
 					}
-				}
-				catch(ConcurrentModificationException e2)
-				{}
+				//}
+				//catch(ConcurrentModificationException e2) {}
 			}
 			gl.glEnd();
 			
@@ -213,8 +241,8 @@ public class GraphVisualizationMulti extends AbstractVisualization
 			gl.glBegin(GL.GL_POINTS);
 			while(iterPoints.hasNext())
 			{
-				try
-				{ 
+				//try
+				//{ 
 					point = iterPoints.next();
 				
 					if(point.getID()==i)
@@ -228,12 +256,18 @@ public class GraphVisualizationMulti extends AbstractVisualization
 						gl.glVertex2d(2*totalX-1, 2*mappedValue-1);
 						totalX -= point.x / timeFrame;
 					}
-				}				
-				catch(ConcurrentModificationException e) { }
+				//}				
+				//catch(ConcurrentModificationException e) { }
 			}
 			gl.glEnd();
-		}
+		}		
 		
+		// remove oldest points when total time is reached
+		while(totalTime > timeFrame + borderOffset + timeFrame/10.0)				//TODO
+		{
+			Vec2 tail = points.removeLast();			
+			if(tail.id==0 && tail.x<10)totalTime -= tail.x;
+		}
 	}
 	
 	// draw axis and value range
@@ -260,11 +294,32 @@ public class GraphVisualizationMulti extends AbstractVisualization
 	
 	public void addValue(float newValue, int id)
 	{
-		timer.update();
+		timer[id].update();
 
-		double delta = timer.deltaTime();
+		double delta = timer[id].deltaTime();
+		if(delta>10)delta=0.5;
 		Vec2 newPoint = new Vec2(delta, newValue,id);
-		points.addFirst(newPoint);
+		
+		
+		//points.addFirst(newPoint);
+		
+		if(buffer1active)
+		{			
+			buffer1.addFirst(newPoint);
+		}
+		else
+		{			
+			buffer2.addFirst(newPoint);
+		}
+		
+		bufferCount++;
+		if(bufferCount>0) //switch buffer nach x werten
+		{
+			bufferCount=0;
+			buffer1active=!buffer1active;
+		}
+		
+		//System.out.println(bufferCount+" "+buffer1active);
 		
 		// update range to contain new value 
 		if(autoAdjust)
@@ -273,15 +328,14 @@ public class GraphVisualizationMulti extends AbstractVisualization
 			if(newValue > maxValue[id]) setMaxValue(newValue,id);
 		}
 		
-		// update total time
-		totalTime += delta;
-		// remove oldest points when total time is reached
-//		while(totalTime > timeFrame + borderOffset)				//TODO
-//		{
-//			Vec2 tail = points.removeLast();
-//			totalTime -= tail.x;
-//			//colors.removeLast();
-//		}
+		// update total time 
+		//totalTime von nur einem wert nehmen, da graphen parallel laufen		
+		
+		if(id==0 && delta<10)totalTime += delta;
+		
+		//System.out.println(totalTime+" "+timeFrame);
+		
+		
 	}
 
 	@Override
@@ -336,6 +390,12 @@ public class GraphVisualizationMulti extends AbstractVisualization
 	public void setTimeFrame(double range) 
 	{
 		this.timeFrame = range;
+	}
+
+	@Override
+	public void addValue(float f) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

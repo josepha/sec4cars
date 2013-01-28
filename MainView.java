@@ -1,6 +1,7 @@
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
@@ -53,6 +54,10 @@ public class MainView extends JFrame
 	private GLUT glut;
 	
 	private boolean singleView;
+	private int flushCounter = 0;
+	private TreePath[] activeTreePaths;
+	
+	private boolean viewIsReady;
 	
 	// getter für graphPanel, den Container, der die Graphansichten enthält
 	// @josepha: hier über .add die Visualisierungen der Motorblöcke hinzufügen
@@ -152,9 +157,87 @@ public class MainView extends JFrame
 		if(aufnahmeAktiv)
 		{
 			out.println(System.currentTimeMillis() +" " + ID + " " + value);
-		}
+			flushCounter++;
+			if(flushCounter>10)
+			{
+				out.flush();
+				flushCounter=0;
+			}			
+		}		
 	}
 	
+	public boolean viewReady()
+	{
+		return viewIsReady;
+	}
+	
+	private void loadSingleView(final TreePath[] treePaths)
+	{
+		viewIsReady=false;
+		if(treePaths!=null && treePaths.length>0)			
+		{
+			EventQueue.invokeLater(new Runnable() {
+	            public void run() {
+	                try {
+	                	GraphVisualizationMulti multiGraph = new GraphVisualizationMulti(treePaths.length, 2.5,0,45,glut);
+	        			
+	        			ParameterViewMultiGraphPanel viewGraphPanel = new ParameterViewMultiGraphPanel();        			
+	        			graphPanel.add(viewGraphPanel);
+	        			viewGraphPanel.setVisualization(multiGraph);
+	        			
+	        			for(int i=0;i<treePaths.length;i++)
+	        			{
+	        				MessblockTreeNode node = (MessblockTreeNode)treePaths[i].getLastPathComponent();        			
+	        				ParameterViewMulti panel = new ParameterViewMulti(node.toString(),treePaths.length, node.getNodeID(),i);
+	        				panel.setVisualization(multiGraph);
+	        				panel.setMinimumSize(new Dimension(500, 80));
+	        				panel.setMaximumSize(new Dimension(1500, 80));
+	        				graphPanel.add(panel);
+	        				//graphPanel.setMinimumSize(new Dimension(500, i * 80 + 550));      	
+	        			}      
+	        			
+	                } catch (Exception e) {
+	                    e.printStackTrace();
+	                }
+	            }
+			});
+			graphPanel.updateUI();
+			activeTreePaths=treePaths;			
+		}
+		viewIsReady=true;
+	}
+	
+	private void loadMultiView(TreePath[] treePaths)
+	{
+		viewIsReady=false;
+		if(treePaths!=null && treePaths.length>0)
+		{
+			for(int i=0;i<treePaths.length;i++)
+			{
+				MessblockTreeNode node = (MessblockTreeNode)treePaths[i].getLastPathComponent();        			
+				ParameterView panel = new ParameterView(node.toString(),treePaths.length, node.getNodeID());
+				panel.setVisualization(new GraphVisualization(2.5, 0, 45, glut));
+				panel.setMinimumSize(new Dimension(500, 300));
+				graphPanel.add(panel);
+				graphPanel.setMinimumSize(new Dimension(500, i * 400));      	
+			}      
+			graphPanel.updateUI();
+			activeTreePaths=treePaths;
+		}
+		viewIsReady=true;		
+	}
+	
+	private void clearView()
+	{
+		viewIsReady=false;
+		int activePanelsCount = graphPanel.getComponentCount();
+		
+		for(int i =0;i<activePanelsCount;i++)
+		{
+			graphPanel.remove(0);
+		}
+		graphPanel.updateUI();
+	}
 	
 	public MainView(String title)
 	{
@@ -165,8 +248,11 @@ public class MainView extends JFrame
 		// quit program when window is closed
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+        viewIsReady=false;
 
         glut = new GLUT();
+        
+        
         
         fileChooser = new JFileChooser();
         fileChooser.setMultiSelectionEnabled(false);
@@ -182,7 +268,6 @@ public class MainView extends JFrame
 		// scrollpane holding the visualizations
 		JScrollPane graphListPane = new JScrollPane(graphPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		
-
 		
 		// fill tree
 		DefaultMutableTreeNode dataRoot = new DefaultMutableTreeNode("Steuergeräte");
@@ -306,6 +391,8 @@ public class MainView extends JFrame
 
         contentPane.add(mainSplitPane, BorderLayout.CENTER);
         
+        
+        
         //baumauswahl => graphpanel anzeigen
         auswahlanzeigenButton.addActionListener(new ActionListener() 
         {
@@ -317,50 +404,17 @@ public class MainView extends JFrame
     			{
     				graphPanel.remove(0);
     			}
-        		
+    			//markierte knoten auslesen und graphpanel für jedes blatt starten
         		if(!singleView)
-        		{       			
-        		
-        			//markierte knoten auslesen und graphpanel für jedes blatt starten
-        			TreePath[] treePaths = dataBlocksTree.getSelectionPaths();
-        		
-        			for(int i=0;i<treePaths.length;i++)
-        			{
-        				MessblockTreeNode node = (MessblockTreeNode)treePaths[i].getLastPathComponent();        			
-        				ParameterView panel = new ParameterView(node.toString(),treePaths.length, node.getNodeID());
-        				panel.setVisualization(new GraphVisualization(2.5, 0, 45, glut));
-        				panel.setMinimumSize(new Dimension(500, 300));
-        				graphPanel.add(panel);
-        				graphPanel.setMinimumSize(new Dimension(500, i * 400));      	
-        			}      
-        			graphPanel.updateUI();
+        		{
+        			TreePath[] treePaths = dataBlocksTree.getSelectionPaths();        		
+        			loadMultiView(treePaths);
         		}
         		else //singleview
         		{
-        			//markierte knoten auslesen und graphpanel für jedes blatt starten
         			TreePath[] treePaths = dataBlocksTree.getSelectionPaths();
-        		
-        			if(treePaths.length>0)
-        			{
-	        			GraphVisualizationMulti multiGraph = new GraphVisualizationMulti(treePaths.length, 2.5,0,45,glut);
-	        			
-	        			ParameterViewMultiGraphPanel viewGraphPanel = new ParameterViewMultiGraphPanel("", 5, "");        			
-	        			graphPanel.add(viewGraphPanel);
-	        			viewGraphPanel.setVisualization(multiGraph);
-	        			
-	        			for(int i=0;i<treePaths.length;i++)
-	        			{
-	        				MessblockTreeNode node = (MessblockTreeNode)treePaths[i].getLastPathComponent();        			
-	        				ParameterViewMulti panel = new ParameterViewMulti(node.toString(),treePaths.length, node.getNodeID(),i);
-	        				panel.setVisualization(multiGraph);
-	        				panel.setMinimumSize(new Dimension(500, 80));
-	        				panel.setMaximumSize(new Dimension(1500, 80));
-	        				graphPanel.add(panel);
-	        				//graphPanel.setMinimumSize(new Dimension(500, i * 80 + 550));      	
-	        			}      
-	        			graphPanel.updateUI();
-	        			//System.out.println("++"+graphPanel.getComponentCount());
-        			}
+        			loadSingleView(treePaths);
+        			
         		}
             }   
         });
@@ -371,15 +425,7 @@ public class MainView extends JFrame
         	public void actionPerformed(ActionEvent e) 
             {
         		dataBlocksTree.clearSelection();
-
-        		int activePanelsCount = graphPanel.getComponentCount();
-            	
-        		for(int i =0;i<activePanelsCount;i++)
-        		{
-        			graphPanel.remove(0);
-        		}
-        		graphPanel.updateUI();
-
+        		clearView();
             } 
         });
         
@@ -444,16 +490,24 @@ public class MainView extends JFrame
         {
         	public void actionPerformed(ActionEvent e) 
             {
+        		viewIsReady=false;
             	if(singleView)
             	{
-            		singleView=false;
+            		clearView();
+            		loadMultiView(activeTreePaths);
+            		//singleView=false;
             		((JButton) e.getSource()).setText("multi");
+            		
             	}
             	else
             	{
-            		singleView=true;
+            		clearView();
+            		loadSingleView(activeTreePaths);
+            		//singleView=true;
             		((JButton) e.getSource()).setText("single");
             	}
+            	singleView=!singleView;
+            	viewIsReady=true;
             } 
         });
 	}

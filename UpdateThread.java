@@ -3,10 +3,15 @@ public class UpdateThread extends Thread {
 	
 	private MainView linkedMainView;
 	
-	private ParameterView paraView;	
-	private ParameterViewMulti paraView2;
-	private GraphVisualization graphVisu;
-	private GraphVisualizationMulti graphVisu2;
+	private AbstractView paraView;	
+	//private ParameterViewMulti paraView2;
+	private AbstractVisualization graphVisu;
+	//private GraphVisualizationMulti graphVisu2;
+	
+	private float currentPriority;
+	private int activePanelCount;
+	private float maxPriority;
+	private int maxPriorityID;
 	
 	public UpdateThread(MainView mainView)
 	{
@@ -19,26 +24,26 @@ public class UpdateThread extends Thread {
 		while(true)
 		{
 			
-			int activePanelCount = linkedMainView.getGraphPanel().getComponentCount();
-			float maxPriority = 0;
-			int maxPriorityID=0;
-			if(activePanelCount>0)
-			{
+			activePanelCount = linkedMainView.getGraphPanel().getComponentCount();
+			maxPriority = 0;
+			maxPriorityID = 0;
+			if(activePanelCount>0 && linkedMainView.viewReady())
+			{								
 				if(!linkedMainView.isSingleView())
 				{
 					//iterate over graph-panels
 					for(int i=0;i<activePanelCount;i++)
 					{
-						paraView = (ParameterView)linkedMainView.getGraphPanel().getComponent(i);
-						float currentPriority = paraView.updateAndGetPriority();
+						paraView = (AbstractView)linkedMainView.getGraphPanel().getComponent(i);
+						currentPriority = paraView.updateAndGetPriority();
 						if(currentPriority>maxPriority)
 						{
 							maxPriority=currentPriority;
 							maxPriorityID=i;
 						}	        	
 					}
-					paraView = (ParameterView)linkedMainView.getGraphPanel().getComponent(maxPriorityID);
-					graphVisu = (GraphVisualization)paraView.getVisualisation();	  
+					paraView = (AbstractView)linkedMainView.getGraphPanel().getComponent(maxPriorityID);
+					graphVisu = (AbstractVisualization)paraView.getVisualisation();	  
 					paraView.resetPriority();
 					
 					//TODO: hier anfrage abschicken
@@ -56,11 +61,11 @@ public class UpdateThread extends Thread {
 				}
 				else //singleview
 				{
-					//System.out.println(">>"+activePanelCount+"");
+					
 					for(int i=1;i<activePanelCount;i++)
 					{
-						paraView2 = (ParameterViewMulti)linkedMainView.getGraphPanel().getComponent(i);
-						float currentPriority = paraView2.updateAndGetPriority();						
+						paraView = (AbstractView)linkedMainView.getGraphPanel().getComponent(i);
+						currentPriority = paraView.updateAndGetPriority();						
 						if(currentPriority>maxPriority)
 						{
 							maxPriority=currentPriority;
@@ -70,9 +75,9 @@ public class UpdateThread extends Thread {
 					//System.out.println(maxPriorityID+"");
 					if(maxPriority>0)
 					{
-						paraView2 = (ParameterViewMulti)linkedMainView.getGraphPanel().getComponent(maxPriorityID);
-						graphVisu2 = (GraphVisualizationMulti)paraView2.getVisualisation();	  
-						paraView2.resetPriority();
+						paraView = (AbstractView)linkedMainView.getGraphPanel().getComponent(maxPriorityID);
+						graphVisu = (AbstractVisualization)paraView.getVisualisation();	  
+						paraView.resetPriority();
 						
 						//TODO: hier anfrage abschicken
 						
@@ -83,9 +88,9 @@ public class UpdateThread extends Thread {
 						
 						float newValue = (float)Math.random();
 						
-						linkedMainView.logValue(paraView2.getID(), newValue+"");
+						linkedMainView.logValue(paraView.getID(), newValue+"");
 						
-						graphVisu2.addValue(newValue, maxPriorityID-1);
+						graphVisu.addValue(newValue, maxPriorityID-1);
 					}
 					else
 					{
