@@ -1,3 +1,6 @@
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
  
@@ -17,19 +20,23 @@ public class CarInspector
 		
         MainView mainView = new MainView("CarInspector");
         // make component visible
-        mainView.setVisible(true);
-     
+        mainView.setVisible(true); 
         
-        // update loop
-//        int activePanelCount = mainView.getGraphPanel().getComponentCount();
-//        for(int i=0;i<activePanelCount;i++)
-//        {
-//        	ParameterView paraView = (ParameterView)mainView.getGraphPanel().getComponent(i);
-//        	paraView.graphVisu.update(0.5, 0.01);
-//        }
         
-        UpdateThread getData = new UpdateThread(mainView);
-        getData.start();
+
+       final UpdateThread getData = new UpdateThread(mainView);
+       getData.start();
+        
+//        mainView.addComponentListener(new ComponentAdapter() {
+//            @SuppressWarnings("deprecation")
+//			@Override
+//            public void componentHidden(ComponentEvent e) {
+//            	getData.stop();
+//            	getData.destroy();
+//            	((MainView)(e.getComponent())).shutDown();
+//                ((MainView)(e.getComponent())).dispose();
+//            }
+//        });
 
     }
 }

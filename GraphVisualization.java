@@ -1,21 +1,16 @@
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Iterator;
 import java.util.LinkedList;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
-import javax.media.opengl.GL2ES2;
 import javax.media.opengl.GLAutoDrawable;
 
 import com.jogamp.opengl.util.gl2.GLUT;
 
-
 // plot of 2D point data
 // color mapping currently disabled
 // TODO: unse?
-public class GraphVisualization extends AbstractVisualization 
-{
+public class GraphVisualization extends AbstractVisualization {
 	private double totalTime;
 	// minimum value displayed
 	private double minValue;
@@ -35,268 +30,254 @@ public class GraphVisualization extends AbstractVisualization
 	// points of the graph mapped to fit in value range
 	private LinkedList<Vec2> points;
 	// mapped colors for points
-	//private LinkedList<GraphColor> colors;
+	// private LinkedList<GraphColor> colors;
 	private double scaleOffset = 0.02;
 
 	private GL2 gl;
-	
-	//private ColorMapper mapper;
-	
+
+	// private ColorMapper mapper;
+
 	private GraphColor graphColor;
 	private GraphColor bgColor;
 	private GraphColor axisColor;
-	
-	private GLUT glut;
-	
 
+	private GLUT glut;
+
+	private Iterator<Vec2> iterPoints;
 
 	// constructors
-	//public ParameterGraph(double minValue, double maxValue, double optimalValue, double timeFrame, GraphColor bgColor, GraphColor axisColor, GraphColor goodColor, GraphColor badColor)
-	public GraphVisualization(double minValue, double maxValue, double optimalValue, double timeFrame, GraphColor bgColor, GraphColor axisColor, GraphColor graphColor)
-	{
+	// public ParameterGraph(double minValue, double maxValue, double
+	// optimalValue, double timeFrame, GraphColor bgColor, GraphColor axisColor,
+	// GraphColor goodColor, GraphColor badColor)
+	public GraphVisualization(double minValue, double maxValue,
+			double optimalValue, double timeFrame, GraphColor bgColor,
+			GraphColor axisColor, GraphColor graphColor) {
 		// maxValue has to be larger than minValue
-		assert(maxValue >= minValue && optimalValue >= minValue && optimalValue <= maxValue);
-		
+		assert (maxValue >= minValue && optimalValue >= minValue && optimalValue <= maxValue);
+
 		this.minValue = minValue;
 		this.maxValue = maxValue;
 		this.valueRange = maxValue - minValue;
 		this.timeFrame = timeFrame;
-		
+
 		this.bgColor = bgColor;
 		this.axisColor = axisColor;
 		this.graphColor = graphColor;
-		
-		//this.mapper = new ColorMapper(optimalValue, minValue, maxValue, Interpolator.CUBIC_FIT, goodColor, badColor);
-		
+
+		// this.mapper = new ColorMapper(optimalValue, minValue, maxValue,
+		// Interpolator.CUBIC_FIT, goodColor, badColor);
+
 		totalTime = 0;
 		timer = new FrameTimer();
 		points = new LinkedList<Vec2>();
-		//colors = new LinkedList<GraphColor>();	
-		
-		glut = new GLUT();
-		
-	
+		// colors = new LinkedList<GraphColor>();
+
 	}
-	
+
 	// default colors
-	public GraphVisualization(double minValue, double maxValue, double optimalValue, double timeFrame)
-	{
-		this(minValue, maxValue, optimalValue, timeFrame, GraphColor.BLACK, GraphColor.DARK_GRAY, GraphColor.random());
+	public GraphVisualization(double minValue, double maxValue,
+			double optimalValue, double timeFrame) {
+		this(minValue, maxValue, optimalValue, timeFrame, GraphColor.BLACK,
+				GraphColor.DARK_GRAY, GraphColor.random());
 	}
-	
+
 	// centered around y-axis
-	public GraphVisualization(double range, double optimalValue, double timeFrame)
-	{
-		this(-range/2, range/2, optimalValue, timeFrame);
-		
+	public GraphVisualization(double range, double optimalValue,
+			double timeFrame, GLUT glut_) {
+		this(-range / 2, range / 2, optimalValue, timeFrame);
+		this.glut = glut_;
+
 	}
-	
-	
+
 	// setters
-	public void setMinValue(double minValue)
-	{
-		this.minValue = minValue * (1+scaleOffset);
+	public void setMinValue(double minValue, int i) {
+		this.minValue = minValue * (1 + scaleOffset);
 		updateInternals();
 	}
-	
-	public void setMaxValue(double maxValue)
-	{
+
+	public void setMaxValue(double maxValue, int i) {
 		this.maxValue = maxValue;
 		updateInternals();
 	}
 
 	// set graph color
-	public void setAxisColor(GraphColor color)
-	{
+	public void setAxisColor(GraphColor color) {
 		this.axisColor = color;
 	}
-	
+
 	// set bg color
-	public void setBGColor(GraphColor color)
-	{
+	public void setBGColor(GraphColor color) {
 		this.bgColor = color;
 		bgColor.setClearColor(gl);
 	}
-	
+
 	@Override
-	public void init(GLAutoDrawable drawable) 
-	{
+	public void init(GLAutoDrawable drawable) {
 		gl = drawable.getGL().getGL2();
 		bgColor.setClearColor(gl);
 	}
 
 	@Override
-	public void dispose(GLAutoDrawable drawable) 
-	{
+	public void dispose(GLAutoDrawable drawable) {
 	}
 
 	// render method
 	@Override
-	public void display(GLAutoDrawable drawable) 
-	{
-		// update has to be called repeatedly
-		// TODO: remove
-//		timer.update();
-//		double delta = timer.deltaTime();
-//		double total = timer.currentTime();
-		// @josepha:
-//		this.update(Math.sin(1.2 * total) * Math.cos(0.2749 * total + 0.4) + Math.cos(0.1 * total), delta);
-		this.update(0,0);
+	public void display(GLAutoDrawable drawable) {
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT);
-		
-		drawAxis();	
+
+		drawAxis();
 		drawGraph(gl);
 		drawText();
 	}
-	
-	private void drawText()
-	{		
+
+	private void drawText() {
+
 		gl.glRasterPos2f(0.75f, 0.92f);
-		graphColor.setDrawColor(gl);		
-		glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, points.getFirst().y+"");
+		graphColor.setDrawColor(gl);
+		if (!points.isEmpty()) {
+			glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, points.getFirst().y
+					+ "");
+		}
 		gl.glRasterPos2f(-0.98f, 0.92f);
-		glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, maxValue+"");
+		glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, maxValue + "");
 		gl.glRasterPos2f(-0.98f, -0.97f);
-		glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, minValue+"");
+		glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, minValue + "");
 	}
-	
+
 	// draw graph as line strip
-	private void drawGraph(GL2 gl)
-	{
+	private void drawGraph(GL2 gl) {
 		double totalX = 1.0;
-		Iterator<Vec2> iterPoints = points.iterator();
-		//Iterator<GraphColor> iterColors = colors.iterator();
-		
+		iterPoints = points.iterator();
+		// Iterator<GraphColor> iterColors = colors.iterator();
+
 		graphColor.setDrawColor(gl);
 		Vec2 point;
-		
+
 		gl.glLineWidth(1.0f);
 		gl.glBegin(GL.GL_LINE_STRIP);
-		while(iterPoints.hasNext())
-		{
+		while (iterPoints.hasNext()) {
 			point = iterPoints.next();
-			//iterColors.next().setDrawColor(gl);
+			// iterColors.next().setDrawColor(gl);
 			// values are transformed according to value range
-			// viewport is defined from -1 to 1 in both x and y direction so values need to be transformed again
+			// viewport is defined from -1 to 1 in both x and y direction so
+			// values need to be transformed again
 			double mappedValue = (point.y - minValue) / valueRange;
 			// introduce an offset to avoid graph touching veiwport borders
-			mappedValue = mappedValue * (1 - 2*scaleOffset) + scaleOffset;
-			gl.glVertex2d(2*totalX-1, 2*mappedValue-1);
+			mappedValue = mappedValue * (1 - 2 * scaleOffset) + scaleOffset;
+			gl.glVertex2d(2 * totalX - 1, 2 * mappedValue - 1);
 			totalX -= point.x / timeFrame;
 		}
 		gl.glEnd();
+
+		totalX = 1.0;
+		gl.glPointSize(3.0f);
+		iterPoints = points.iterator();
+		gl.glBegin(GL.GL_POINTS);
+		while (iterPoints.hasNext()) {
+			point = iterPoints.next();
+			// iterColors.next().setDrawColor(gl);
+			// values are transformed according to value range
+			// viewport is defined from -1 to 1 in both x and y direction so
+			// values need to be transformed again
+			double mappedValue = (point.y - minValue) / valueRange;
+			// introduce an offset to avoid graph touching veiwport borders
+			mappedValue = mappedValue * (1 - 2 * scaleOffset) + scaleOffset;
+			gl.glVertex2d(2 * totalX - 1, 2 * mappedValue - 1);
+			totalX -= point.x / timeFrame;
+		}
+		gl.glEnd();
+
 	}
-	
+
 	// draw axis and value range
-	private void drawAxis()
-	{
+	private void drawAxis() {
 		// set color
 		axisColor.setDrawColor(gl);
 		gl.glLineWidth(1.0f);
-		double zeroY = -2*minValue/valueRange - 1;
+		double zeroY = -2 * minValue / valueRange - 1;
 		// TODO: improve speed
 		gl.glBegin(GL.GL_LINES);
-			gl.glVertex2d(-1, zeroY);
-			gl.glVertex2d( 1, zeroY);
+		gl.glVertex2d(-1, zeroY);
+		gl.glVertex2d(1, zeroY);
 		gl.glEnd();
 	}
 
 	@Override
-	public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) 
-	{
-		//TODO: implement
+	public void reshape(GLAutoDrawable drawable, int x, int y, int width,
+			int height) {
+		// TODO: implement
 	}
 
-	@Override
-	public void update(double newValue, double deltaTime) 
-	{
-
-		//timer.update();
-		//double delta2 = timer.deltaTime();
-
-		// update range to contain new value 
-		if(autoAdjust)
-		{
-			if(newValue < minValue) setMinValue(newValue);
-			if(newValue > maxValue) setMaxValue(newValue);
-		}
-		// add new point to visible points list
-//		Vec2 newPoint = new Vec2(deltaTime, newValue);
-//		points.addFirst(newPoint);
-		//colors.addFirst(mapper.getInterpolatedColor(newValue));
-		// update total time
-		totalTime += deltaTime;
-		// remove oldest points when total time is reached
-		while(totalTime > timeFrame + borderOffset)
-		{
-			Vec2 tail = points.removeLast();
-			totalTime -= tail.x;
-			//colors.removeLast();
-		}
-	}
-	
-	public void addValue(float newValue)
-	{
+	public void addValue(float newValue) {
 		timer.update();
-		//TODO: log-file schreiben
-		//String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
-		//System.out.println(timeStamp+" "+newValue);
+
 		double delta = timer.deltaTime();
 		Vec2 newPoint = new Vec2(delta, newValue);
 		points.addFirst(newPoint);
+
+		// update range to contain new value
+		if (autoAdjust) {
+			if (newValue < minValue)
+				setMinValue(newValue, 0);
+			if (newValue > maxValue)
+				setMaxValue(newValue, 0);
+		}
+
+		// update total time
+		totalTime += delta;
+		// remove oldest points when total time is reached
+		while (totalTime > timeFrame + borderOffset) {
+			Vec2 tail = points.removeLast();
+			totalTime -= tail.x;
+			// colors.removeLast();
+		}
 	}
 
 	@Override
-	public void setValueRange(double minValue, double maxValue) 
-	{
+	public void setValueRange(double minValue, double maxValue, int i) {
 		this.minValue = minValue;
 		this.maxValue = maxValue;
 		updateInternals();
 	}
-	
+
 	// helper function that updates valueRange
 	// TODO: future members that need to be updated go here
-	private void updateInternals()
-	{
+	private void updateInternals() {
 		this.valueRange = maxValue - minValue;
-		//mapper.updateRange(minValue, maxValue);
+		// mapper.updateRange(minValue, maxValue);
 		// update fields of containing view GUI
-		if(containingView != null) containingView.updateRangeFields();
+		if (containingView != null)
+			containingView.updateRangeFields();
 	}
 
 	@Override
-	public double getMinValue() 
-	{
+	public double getMinValue(int id) {
 		return minValue;
 	}
 
 	@Override
-	public double getMaxValue() 
-	{
+	public double getMaxValue(int id) {
 		return maxValue;
 	}
 
 	@Override
-	public GraphColor getGraphColor()
-	{
+	public GraphColor getGraphColor(int id) {
 		return graphColor;
 	}
 
 	@Override
-	public void setGraphColor(GraphColor color) 
-	{
+	public void setGraphColor(GraphColor color, int id) {
 		this.graphColor = color;
 	}
 
 	@Override
-	public double getTimeFrame() 
-	{
+	public double getTimeFrame() {
 		return timeFrame;
 	}
 
 	@Override
-	public void setTimeFrame(double range) 
-	{
+	public void setTimeFrame(double range) {
 		this.timeFrame = range;
 	}
 

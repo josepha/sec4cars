@@ -1,16 +1,16 @@
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
-import javax.media.opengl.GLCapabilities;
-import javax.media.opengl.GLProfile;
-import javax.media.opengl.awt.GLJPanel;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -23,15 +23,13 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeSelectionModel;
-import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreePath;
-//import javax.swing.*;
-//import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeSelectionModel;
+
+
+import com.jogamp.opengl.util.gl2.GLUT;
 
 // Main view with layout
 // contends so far: the frame holds a screen filling horizJSplitPane, which has a JTree as its left,
@@ -50,6 +48,11 @@ public class MainView extends JFrame
 	private JFileChooser fileChooser;
 	boolean aufnahmeAktiv;
 	File aufnahmeFile;
+	private PrintWriter out;
+	
+	private GLUT glut;
+	
+	private boolean singleView;
 	
 	// getter für graphPanel, den Container, der die Graphansichten enthält
 	// @josepha: hier über .add die Visualisierungen der Motorblöcke hinzufügen
@@ -58,7 +61,21 @@ public class MainView extends JFrame
 		return graphPanel;
 	}
 	
-	private void initilaizeTree(DefaultMutableTreeNode dataRoot)	{
+	public boolean isSingleView()
+	{
+		return singleView;
+	}
+	
+	public void shutDown()
+	{
+		try { out.close(); }
+		catch(NullPointerException e4)
+		{}
+		
+	}
+	
+	private void initilaizeTree(DefaultMutableTreeNode dataRoot)
+	{
 		//TODO aus datei laden?
 		
 		//alle steuergeräte
@@ -73,40 +90,35 @@ public class MainView extends JFrame
 		DefaultMutableTreeNode j518 = new DefaultMutableTreeNode("J518 Zugang und Startberechtigung");
 		
 		//j623 motorsteuergerät messwerte
-		MessblockTreeNode j623_m001_01 = new MessblockTreeNode("001/1",6230011);
-		MessblockTreeNode j623_m002_04 = new MessblockTreeNode("002/4",6230024);
-		MessblockTreeNode j623_m003_03 = new MessblockTreeNode("003/3",6230033);
-		MessblockTreeNode j623_m010_04 = new MessblockTreeNode("010/4",6230104);
-		MessblockTreeNode j623_m004_02 = new MessblockTreeNode("004/2",6230042);
-		MessblockTreeNode j623_m006_04 = new MessblockTreeNode("006/4",6230064);
-		MessblockTreeNode j623_m007_01 = new MessblockTreeNode("007/1",6230071);
-		MessblockTreeNode j623_m007_02 = new MessblockTreeNode("007/2",6230072);
-		MessblockTreeNode j623_m007_03 = new MessblockTreeNode("007/3",6230073);
-		MessblockTreeNode j623_m007_04 = new MessblockTreeNode("007/4",6230074);
-		MessblockTreeNode j623_m007_05 = new MessblockTreeNode("007/5",6230075);
+		MessblockTreeNode j623_01 = new MessblockTreeNode("Mass Air Flow (G70)","0700032001");
+		MessblockTreeNode j623_02 = new MessblockTreeNode("Coolant Temperature (G62)","0620012001");
+		MessblockTreeNode j623_03 = new MessblockTreeNode("Acceleration Pedal Position, Sensor 1 (G79)","0790543001");
+		MessblockTreeNode j623_04 = new MessblockTreeNode("Accelaration Pedal Position, Sensor 2 (G185)","1850624001");
+		MessblockTreeNode j623_05 = new MessblockTreeNode("*Engine Speed (G28)","0280021001");
+		MessblockTreeNode j623_06 = new MessblockTreeNode("*Throttle Valve, Sensor 1 (G187)","1870601001");
+		MessblockTreeNode j623_07 = new MessblockTreeNode("*Throttle Valve, Sensor 2 (G188)","1880602001");
+		MessblockTreeNode j623_08 = new MessblockTreeNode("*Oil Level (G266)","2660091001");
+
 		
 		//TODO weitere steuergeräte: messwerte eintragen
-		MessblockTreeNode j624_default = new MessblockTreeNode("empty",0);
-		MessblockTreeNode j104_default = new MessblockTreeNode("empty",0);
-		MessblockTreeNode j234_default = new MessblockTreeNode("empty",0);
-		MessblockTreeNode j217_default = new MessblockTreeNode("empty",0);
-		MessblockTreeNode j431_default = new MessblockTreeNode("empty",0);
-		MessblockTreeNode j197_default = new MessblockTreeNode("empty",0);
-		MessblockTreeNode j502_default = new MessblockTreeNode("empty",0);
-		MessblockTreeNode j518_default = new MessblockTreeNode("empty",0);
+		MessblockTreeNode j624_default = new MessblockTreeNode("empty","");
+		MessblockTreeNode j104_default = new MessblockTreeNode("empty","");
+		MessblockTreeNode j234_default = new MessblockTreeNode("empty","");
+		MessblockTreeNode j217_default = new MessblockTreeNode("empty","");
+		MessblockTreeNode j431_default = new MessblockTreeNode("empty","");
+		MessblockTreeNode j197_default = new MessblockTreeNode("empty","");
+		MessblockTreeNode j502_default = new MessblockTreeNode("empty","");
+		MessblockTreeNode j518_default = new MessblockTreeNode("empty","");
 
 		//j623 motorsteuergerät
-		j623.add(j623_m001_01);
-		j623.add(j623_m002_04);
-		j623.add(j623_m003_03);
-		j623.add(j623_m010_04);
-		j623.add(j623_m004_02);
-		j623.add(j623_m006_04);
-		j623.add(j623_m007_01);
-		j623.add(j623_m007_02);
-		j623.add(j623_m007_03);
-		j623.add(j623_m007_04);
-		j623.add(j623_m007_05);
+		j623.add(j623_01);
+		j623.add(j623_02);
+		j623.add(j623_03);
+		j623.add(j623_04);
+		j623.add(j623_05);
+		j623.add(j623_06);
+		j623.add(j623_07);
+		j623.add(j623_08);
 		
 		//TODO weitere steuergeräte: messwerte einfügen
 		j624.add(j624_default);
@@ -135,39 +147,42 @@ public class MainView extends JFrame
 	    this.setTitle(newTitle);
 	}
 	
+	public void logValue(String ID, String value)
+	{
+		if(aufnahmeAktiv)
+		{
+			out.println(System.currentTimeMillis() +" " + ID + " " + value);
+		}
+	}
+	
+	
 	public MainView(String title)
 	{
 		super(title);
 		setSize(1024, 768);
 		Container contentPane = this.getContentPane();
-		//setExtendedState(JFrame.MAXIMIZED_BOTH);
+		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		// quit program when window is closed
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+
+        glut = new GLUT();
         
         fileChooser = new JFileChooser();
         fileChooser.setMultiSelectionEnabled(false);
         fileChooser.setAcceptAllFileFilterUsed(false);
         fileChooser.setFileFilter(new FileNameExtensionFilter("log Datei","log"));
         
-        aufnahmeFile=null;
-        aufnahmeAktiv= false;
-		
+        aufnahmeFile = null;
+        aufnahmeAktiv = false;
+        singleView=true;
+		 
 		graphPanel = new JPanel();
 		graphPanel.setLayout( new BoxLayout(graphPanel, BoxLayout.Y_AXIS) );
 		// scrollpane holding the visualizations
 		JScrollPane graphListPane = new JScrollPane(graphPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		
-		
-		//@josepha
-//		for(int i = 0; i < 10; ++i)
-//	    {
-//			// TODO: replace GLJPanel with ParameterView once implemented
-//			ParameterView panel = new ParameterView( "name " + i );
-//	        panel.setVisualization(new GraphVisualization(2.5, 0, 45));
-//	        panel.setMinimumSize(new Dimension(500, 300));
-//	        graphPanel.add(panel);
-//	        graphPanel.setMinimumSize(new Dimension(500, i * 400));
-//	    }
+
 		
 		// fill tree
 		DefaultMutableTreeNode dataRoot = new DefaultMutableTreeNode("Steuergeräte");
@@ -190,8 +205,6 @@ public class MainView extends JFrame
     				super.setSelectionPath(treePath);
     			}				
 			}	
-
-			
 		});
 		
 		initilaizeTree(dataRoot);		
@@ -219,10 +232,10 @@ public class MainView extends JFrame
 		aufnahmeButton.setPreferredSize(new Dimension(80,25));
 		aufnahmeButton.setMaximumSize(new Dimension(80,25));
 		JLabel anzeigeLabel = new JLabel(" Anzeige");
-		JButton anzeigeButton = new JButton("single");
-		anzeigeButton.setMinimumSize(new Dimension(80,25));
-		anzeigeButton.setPreferredSize(new Dimension(80,25));
-		anzeigeButton.setMaximumSize(new Dimension(80,25));
+		JButton singlemultiButton = new JButton("single");
+		singlemultiButton.setMinimumSize(new Dimension(80,25));
+		singlemultiButton.setPreferredSize(new Dimension(80,25));
+		singlemultiButton.setMaximumSize(new Dimension(80,25));
 		//anzeigeButton.setAlignmentX(LEFT_ALIGNMENT);
 		JLabel einstellungenLabel = new JLabel(" Einstellungen");
 		JButton einstellungenladenButton = new JButton("laden");
@@ -263,7 +276,7 @@ public class MainView extends JFrame
 		buttonsRightPanel.add(Box.createRigidArea(new Dimension(0,8)));
 		buttonsRightPanel.add(anzeigeLabel);
 		buttonsRightPanel.add(Box.createRigidArea(new Dimension(0,3)));
-		buttonsRightPanel.add(anzeigeButton);
+		buttonsRightPanel.add(singlemultiButton);
 		buttonsRightPanel.add(Box.createRigidArea(new Dimension(0,8)));
 		buttonsRightPanel.add(empty2);
 		buttonsRightPanel.add(Box.createRigidArea(new Dimension(0,3)));
@@ -277,29 +290,18 @@ public class MainView extends JFrame
 		buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.LINE_AXIS));
 		buttonsPanel.add(buttonsLeftPanel);
 		buttonsPanel.add(buttonsRightPanel);
-		
-//		JPanel treePanel = new JPanel();
-//		treePanel.setLayout(new BoxLayout(treePanel, BoxLayout.PAGE_AXIS));		
-//		//treePanel.setAlignmentX(LEFT_ALIGNMENT);
-//		treePanel.add(dataBlocksTree);
-//		treePanel.setAlignmentX(LEFT_ALIGNMENT);
-		
+
 		JPanel leftContainer = new JPanel();
 		leftContainer.setLayout(new BoxLayout(leftContainer, BoxLayout.PAGE_AXIS));		
-		//leftContainer.setAlignmentX(RIGHT_ALIGNMENT);
-		//JPanel rightContainer = new JPanel();
-		
+
 		JScrollPane treeScrollPane = new JScrollPane(dataBlocksTree, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		
 		leftContainer.add(treeScrollPane);
 		leftContainer.add(buttonsPanel);
-		
-	    //rightContainer.add(graphListPane);
 
 		// setup split pane
-        //mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, dataBlocksTree, graphListPane);
 		JSplitPane  mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftContainer, graphListPane);//rightContainer);
-        mainSplitPane.setDividerLocation(200);
+        mainSplitPane.setDividerLocation(300);
         mainSplitPane.setContinuousLayout(true);
 
         contentPane.add(mainSplitPane, BorderLayout.CENTER);
@@ -310,25 +312,56 @@ public class MainView extends JFrame
         	public void actionPerformed(ActionEvent e) 
             {
         		//aktive graphpanel löschen
-        		int activePanelsCount = graphPanel.getComponentCount();            	
-            	for(int i =0;i<activePanelsCount;i++)
-            	{
-            		graphPanel.remove(0);
-            	}
+    			int activePanelsCount = graphPanel.getComponentCount();            	
+    			for(int i =0;i<activePanelsCount;i++)
+    			{
+    				graphPanel.remove(0);
+    			}
         		
-            	//markierte knoten auslesen und graphpanel für jedes blatt starten
-        		TreePath[] treePaths = dataBlocksTree.getSelectionPaths();
+        		if(!singleView)
+        		{       			
         		
-        		for(int i=0;i<treePaths.length;i++)
+        			//markierte knoten auslesen und graphpanel für jedes blatt starten
+        			TreePath[] treePaths = dataBlocksTree.getSelectionPaths();
+        		
+        			for(int i=0;i<treePaths.length;i++)
+        			{
+        				MessblockTreeNode node = (MessblockTreeNode)treePaths[i].getLastPathComponent();        			
+        				ParameterView panel = new ParameterView(node.toString(),treePaths.length, node.getNodeID());
+        				panel.setVisualization(new GraphVisualization(2.5, 0, 45, glut));
+        				panel.setMinimumSize(new Dimension(500, 300));
+        				graphPanel.add(panel);
+        				graphPanel.setMinimumSize(new Dimension(500, i * 400));      	
+        			}      
+        			graphPanel.updateUI();
+        		}
+        		else //singleview
         		{
-        			MessblockTreeNode node = (MessblockTreeNode)treePaths[i].getLastPathComponent();        			
-        			ParameterView panel = new ParameterView(node.toString(),treePaths.length, node.getNodeID());
-        		    panel.setVisualization(new GraphVisualization(2.5, 0, 45));
-        		    panel.setMinimumSize(new Dimension(500, 300));
-        		    graphPanel.add(panel);
-        		    graphPanel.setMinimumSize(new Dimension(500, i * 400));      	
-        		}      
-        		graphPanel.updateUI();
+        			//markierte knoten auslesen und graphpanel für jedes blatt starten
+        			TreePath[] treePaths = dataBlocksTree.getSelectionPaths();
+        		
+        			if(treePaths.length>0)
+        			{
+	        			GraphVisualizationMulti multiGraph = new GraphVisualizationMulti(treePaths.length, 2.5,0,45,glut);
+	        			
+	        			ParameterViewMultiGraphPanel viewGraphPanel = new ParameterViewMultiGraphPanel("", 5, "");        			
+	        			graphPanel.add(viewGraphPanel);
+	        			viewGraphPanel.setVisualization(multiGraph);
+	        			
+	        			for(int i=0;i<treePaths.length;i++)
+	        			{
+	        				MessblockTreeNode node = (MessblockTreeNode)treePaths[i].getLastPathComponent();        			
+	        				ParameterViewMulti panel = new ParameterViewMulti(node.toString(),treePaths.length, node.getNodeID(),i);
+	        				panel.setVisualization(multiGraph);
+	        				panel.setMinimumSize(new Dimension(500, 80));
+	        				panel.setMaximumSize(new Dimension(1500, 80));
+	        				graphPanel.add(panel);
+	        				//graphPanel.setMinimumSize(new Dimension(500, i * 80 + 550));      	
+	        			}      
+	        			graphPanel.updateUI();
+	        			//System.out.println("++"+graphPanel.getComponentCount());
+        			}
+        		}
             }   
         });
         
@@ -337,62 +370,90 @@ public class MainView extends JFrame
         {
         	public void actionPerformed(ActionEvent e) 
             {
-            	dataBlocksTree.clearSelection();
-            	int activePanelsCount = graphPanel.getComponentCount();
+        		dataBlocksTree.clearSelection();
+
+        		int activePanelsCount = graphPanel.getComponentCount();
             	
-            	for(int i =0;i<activePanelsCount;i++)
-            	{
-            		graphPanel.remove(0);
-            	}
-            	graphPanel.updateUI();
+        		for(int i =0;i<activePanelsCount;i++)
+        		{
+        			graphPanel.remove(0);
+        		}
+        		graphPanel.updateUI();
+
             } 
         });
         
-        
+        //aufnahme starten/stopen
         aufnahmeButton.addActionListener(new ActionListener() 
         {
         	public void actionPerformed(ActionEvent e) 
             {
         		if(aufnahmeAktiv==false)   //logging starten   
         		{
-        			//ExampleFileFilter filter = new ExampleFileFilter();
-        			//filter.addExtension("jpg");
-        			int returnVal = fileChooser.showOpenDialog(null);
-        			if (returnVal == JFileChooser.APPROVE_OPTION) {
+        			int returnVal = fileChooser.showOpenDialog(null); //datei öffnen dialog
+        			if (returnVal == JFileChooser.APPROVE_OPTION)
+        			{
         				aufnahmeFile = fileChooser.getSelectedFile();
-        				//This is where a real application would open the file.
-        				//log.append("Opening: " + file.getName() + "." + newline);
-        				if(aufnahmeFile.exists())
+        				
+        				if(aufnahmeFile.exists()) //log-datei schon vorhanden
         				{
-        					System.out.println("File: "+aufnahmeFile.toString());
+        					//System.out.println("File: "+aufnahmeFile.toString());
         				}
         				else //log-datei anlegen
         				{                    	
+        					//log-endung anfügen
         					if(!aufnahmeFile.getPath().toLowerCase().endsWith(".log"))
         					{
         						aufnahmeFile = new File(aufnahmeFile.getPath() + ".log");
         					}
-        					try {
-        						aufnahmeFile.createNewFile();
-        					} catch (IOException e1) {
-        						// TODO Auto-generated catch block
-        						e1.printStackTrace();
-        					}
-        					System.out.println("new File: "+aufnahmeFile.toString());
+        					
+        					try { aufnahmeFile.createNewFile(); }
+        					catch (IOException e1) { e1.printStackTrace(); }
+        					
+        					//System.out.println("new File: "+aufnahmeFile.toString());
         				}
         				aufnahmeAktiv=true;
         			    ((JButton) e.getSource()).setText("stoppen");  //schön is anders
         			    changeTitle("CarInspector "+aufnahmeFile.toString());
         			    
+        			    try {
+        			        out = new PrintWriter(new BufferedWriter(new FileWriter(aufnahmeFile, true)));
+        			        String timeStamp = new SimpleDateFormat(">>dd.mm.yyyy hh:mm:ss").format(Calendar.getInstance().getTime());
+        			        out.println("");
+        					out.println(timeStamp);        			            			       
+        			    } 
+        			    catch (IOException e3) {
+        			    	//System.out.println("log-file error");
+        			    	//e3.printStackTrace();        			        
+        			    }
+        			    
         			}
                 }
         		else //logging stoppen
         		{
-        			aufnahmeAktiv=false;
-        			aufnahmeFile=null;
+        			out.close();
+        			aufnahmeAktiv = false;
+        			aufnahmeFile = null;
         			((JButton) e.getSource()).setText("starten");  
         			changeTitle("CarInspector");
         		}
+            } 
+        });
+        
+        singlemultiButton.addActionListener(new ActionListener() 
+        {
+        	public void actionPerformed(ActionEvent e) 
+            {
+            	if(singleView)
+            	{
+            		singleView=false;
+            		((JButton) e.getSource()).setText("multi");
+            	}
+            	else
+            	{
+            		singleView=true;
+            		((JButton) e.getSource()).setText("single");
+            	}
             } 
         });
 	}

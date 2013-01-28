@@ -36,7 +36,7 @@ import javax.swing.SwingConstants;
 import com.jogamp.opengl.util.FPSAnimator;
 
 // TODO implement stuff belonging to the view
-public class ParameterView extends AbstractView
+public class ParameterViewMulti extends AbstractView
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -50,7 +50,7 @@ public class ParameterView extends AbstractView
 	// set up GUI components
 	
 	// canvas for openGL rendering
-	private GLJPanel glPanel;
+	//private GLJPanel glPanel;
 	// label for block name
 	private JLabel nameLabel;
 	// panel holding buttons below graph
@@ -79,9 +79,7 @@ public class ParameterView extends AbstractView
 	// graph color label
 	private JLabel colorLabel;
 
-	// graph timeframe width buttons
-	private JButton narrowerButton;
-	private JButton broaderButton;
+
 	
 	private int priority;			//aktuelle priorität
 	private int priorityCount;		//prioritätscounter
@@ -89,14 +87,15 @@ public class ParameterView extends AbstractView
 	private int activeViewCount;	//aktive graphPanel
 	
 	private String ID;
+	private int position;
 	
 	public void setVisualization(AbstractVisualization visualization)
 	{		
-		glPanel.addGLEventListener(visualization);
+		//glPanel.addGLEventListener(visualization);
 		linkedVisualization = visualization;
 		visualization.setContainingView(this);
 		updateRangeFields();
-		GraphColor col = linkedVisualization.getGraphColor(0);
+		GraphColor col = linkedVisualization.getGraphColor(position);
 		// could not be returned by the view
 		if(col != null) colorLabel.setBackground(col.toJColor());
 		// show that color of this visualisation ist not editable
@@ -111,15 +110,17 @@ public class ParameterView extends AbstractView
 	public void updateRangeFields()
 	{
 		if(linkedVisualization == null) return;
-		minVal.setText( String.format("%.3f", linkedVisualization.getMinValue(0)) );
-		maxVal.setText( String.format("%.3f", linkedVisualization.getMaxValue(0)) );
+		minVal.setText( String.format("%.3f", linkedVisualization.getMinValue(position)) );
+		maxVal.setText( String.format("%.3f", linkedVisualization.getMaxValue(position)) );
 	}
 
-	public ParameterView(String name, int count, String panelID) 
+	public ParameterViewMulti(String name, int count, String panelID, int position) 
 	{
 		// parameter view setup
 		super();
 		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+		
+		this.position=position;
 		
 		priority = 1;
 		this.activeViewCount=count;
@@ -152,17 +153,7 @@ public class ParameterView extends AbstractView
 		switchDownButton.setMinimumSize(new Dimension(buttonSize,buttonSize));
 		switchDownButton.setPreferredSize(new Dimension(buttonSize, buttonSize));
 		switchDownButton.setMaximumSize(new Dimension(buttonSize, buttonSize));
-		// set up time frame buttons
-		ImageIcon broader = new ImageIcon("broader.png");
-		ImageIcon narrower = new ImageIcon("narrower.png");
-		broaderButton = new JButton(broader);
-		broaderButton.setMinimumSize(new Dimension(2 *buttonSize,buttonSize));
-		broaderButton.setPreferredSize(new Dimension(2 * buttonSize, buttonSize));
-		broaderButton.setMaximumSize(new Dimension(2 * buttonSize, buttonSize));
-		narrowerButton = new JButton(narrower);
-		narrowerButton.setMinimumSize(new Dimension(2 * buttonSize,buttonSize));
-		narrowerButton.setPreferredSize(new Dimension(2 * buttonSize, buttonSize));
-		narrowerButton.setMaximumSize(new Dimension(2 * buttonSize, buttonSize));
+
 		// setup autoAdjust gui
 		autoAdjustBox = new JCheckBox("Auto-Skalierung");
 		autoAdjustBox.setSelected(true);
@@ -205,12 +196,12 @@ public class ParameterView extends AbstractView
 		maxVal.setMaximumSize(new Dimension(60, 20));
 		maxVal.setHorizontalAlignment(JTextField.RIGHT);
 		// set up openGL graph panel
-		GLProfile glprofile = GLProfile.getDefault();
-        GLCapabilities glcapabilities = new GLCapabilities( glprofile );
-        glPanel = new GLJPanel( glcapabilities );
-        glPanel.setMinimumSize(new Dimension(50,300));
-        glPanel.setPreferredSize(new Dimension(400,300));
-        glPanel.setMaximumSize(new Dimension(1500,300));
+//		GLProfile glprofile = GLProfile.getDefault();
+//        GLCapabilities glcapabilities = new GLCapabilities( glprofile );
+//        glPanel = new GLJPanel( glcapabilities );
+//        glPanel.setMinimumSize(new Dimension(50,300));
+//        glPanel.setPreferredSize(new Dimension(400,300));
+//        glPanel.setMaximumSize(new Dimension(1500,300));
         // set up panel holding buttons
 		buttonsPanel = new JPanel();
         buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.LINE_AXIS));
@@ -232,12 +223,13 @@ public class ParameterView extends AbstractView
         colorLabel.setPreferredSize(new Dimension(60, 20));
         colorLabel.setMaximumSize(new Dimension(60, 20));
         
-        // TODO: remove later on
-        FPSAnimator animator = new FPSAnimator(glPanel, 60);
-        animator.add(glPanel); //???
-        animator.start();
-        add(Box.createHorizontalGlue());
+//        // TODO: remove later on
+//        FPSAnimator animator = new FPSAnimator(glPanel, 60);
+//        animator.add(glPanel); //???
+//        animator.start();
+//        add(Box.createHorizontalGlue());
            
+        add(new JSeparator());
         int minDist = 7;
         // set alignments and add components
         nameLabel.setAlignmentX(LEFT_ALIGNMENT);
@@ -254,21 +246,21 @@ public class ParameterView extends AbstractView
         add(titlePanel);
         add(buttonsPanel);
         add(Box.createHorizontalGlue());
-        layeredPane = new JLayeredPane();
-        layeredPane.setLayout(new BoxLayout(layeredPane, BoxLayout.LINE_AXIS));
-        //com.sun.lwuit.layouts.Layout
-        layeredPane.setAlignmentX(LEFT_ALIGNMENT);
-        layeredPane.add(glPanel);
-        glPanel.setAlignmentX(Box.LEFT_ALIGNMENT);
-        layeredPane.setMinimumSize(new Dimension(50,300));
-        layeredPane.setPreferredSize(new Dimension(400,300));
-        layeredPane.setMaximumSize(new Dimension(1500,300));
-        //TODO: find out how to render label on top of view
-//        JLabel testLabel = new JLabel("TEST");
-//        layeredPane.add(testLabel);
-        //testLabel.setAlignmentX(Box.CENTER_ALIGNMENT);
-        //TODO: add layered labels of min, max and units
-        add(layeredPane);
+//       layeredPane = new JLayeredPane();
+//        layeredPane.setLayout(new BoxLayout(layeredPane, BoxLayout.LINE_AXIS));
+//       //com.sun.lwuit.layouts.Layout
+//        layeredPane.setAlignmentX(LEFT_ALIGNMENT);
+//        layeredPane.add(glPanel);
+//        glPanel.setAlignmentX(Box.LEFT_ALIGNMENT);
+//        layeredPane.setMinimumSize(new Dimension(50,50));
+//        layeredPane.setPreferredSize(new Dimension(400,50));
+//        layeredPane.setMaximumSize(new Dimension(1500,50));
+//        //TODO: find out how to render label on top of view
+////        JLabel testLabel = new JLabel("TEST");
+////        layeredPane.add(testLabel);
+//        //testLabel.setAlignmentX(Box.CENTER_ALIGNMENT);
+//        //TODO: add layered labels of min, max and units
+//        add(layeredPane);
         buttonsPanel.setAlignmentX(LEFT_ALIGNMENT);
         add(Box.createHorizontalGlue());
         buttonsPanel.add(Box.createHorizontalStrut(minDist));
@@ -290,19 +282,16 @@ public class ParameterView extends AbstractView
         buttonsPanel.add(autoAdjustBox);
         buttonsPanel.add(Box.createHorizontalGlue());
         buttonsPanel.add(Box.createHorizontalStrut(minDist));
-        buttonsPanel.add(broaderButton);
-        buttonsPanel.add(narrowerButton);
-        buttonsPanel.add(Box.createHorizontalStrut(minDist));
         buttonsPanel.add(switchUpButton);
         buttonsPanel.add(switchDownButton);
         buttonsPanel.add(Box.createHorizontalStrut(minDist));
         add(Box.createVerticalStrut(minDist));
-        add(new JSeparator());
+        
         
         //*********************************************************************
         
         // needs to be passed to buttonListeners
-        final ParameterView thisView = this;
+        final ParameterViewMulti thisView = this;
         // sorting of components DOWN
         // TODO: is there an easier or faster way of achieving this?
         switchDownButton.addActionListener(new ActionListener() 
@@ -327,7 +316,7 @@ public class ParameterView extends AbstractView
             		{
             			 components[i] = components[i+1];
                          components[i+1] = temp;
-                         //System.out.format("Swapped items &d and %d\n", i, i+1);
+                         System.out.format("Swapped items &d and %d\n", i, i+1);
                          break;  
             		}
             	}
@@ -350,7 +339,7 @@ public class ParameterView extends AbstractView
             	Component[] components = parent.getComponents();
             	int len = components.length;
             	// out of bounds
-            	if(components[0] == thisView) return;
+            	if(components[1] == thisView) return;
             	thisView.getParent().removeAll();
             	for(int i=0; i<len; ++i)
             	{
@@ -359,7 +348,7 @@ public class ParameterView extends AbstractView
             		{
             			 components[i] = components[i-1];
                          components[i-1] = temp;
-                         //System.out.format("Swapped items &d and %d\n", i, i+1);
+                         System.out.format("Swapped items &d and %d\n", i, i+1);
                          break;  
             		}
             	}
@@ -393,7 +382,15 @@ public class ParameterView extends AbstractView
             }  
         });
         
-
+//        priorityPlusButton.addActionListener(new ActionListener()  //???
+//        {
+//            public void actionPerformed(ActionEvent e) 
+//            {
+//            	// increment label integer by one
+//            	int newVal = Math.min(Integer.parseInt(priorityField.getText())+1,10);
+//            	priorityField.setText(String.valueOf(newVal));
+//            }  
+//        });
         
         minVal.addKeyListener(new KeyListener() 
         {
@@ -447,15 +444,18 @@ public class ParameterView extends AbstractView
 			}  
         });
       
+        final int bla = position;
+        
         colorLabel.addMouseListener(new MouseListener() 
         {
 			@Override
 			public void mouseReleased(MouseEvent arg0) 
 			{
-				Color newColor = JColorChooser.showDialog(thisView, "Pick Graph Color", linkedVisualization.getGraphColor(0).toJColor());
+				
+				Color newColor = JColorChooser.showDialog(thisView, "Pick Graph Color", linkedVisualization.getGraphColor(bla).toJColor());
 				if(newColor != null)
 				{
-					linkedVisualization.setGraphColor(new GraphColor(newColor),0);
+					linkedVisualization.setGraphColor(new GraphColor(newColor),bla);
 					colorLabel.setBackground(newColor);
 				}
 			}
@@ -485,99 +485,9 @@ public class ParameterView extends AbstractView
         final double timeFrameStep = 0.1;
         final double timeFrameIterativeStep = 0.05;
         
-        narrowerButton.addMouseListener(new MouseListener() 
-        {
-            Timer timer = new Timer();
-			@Override
-			public void mouseReleased(MouseEvent arg0) 
-			{
-				timer.cancel();
-			}
-			
-			@Override
-			public void mousePressed(MouseEvent arg0) 
-			{
-				double timeFrame = linkedVisualization.getTimeFrame();
-            	linkedVisualization.setTimeFrame(timeFrame + timeFrameStep * timeFrame);
-				timer = new Timer();
-				timer.schedule( new TimerTask() {
-
-					@Override
-					public void run() 
-					{
-						double timeFrame = linkedVisualization.getTimeFrame();
-		            	linkedVisualization.setTimeFrame(timeFrame + timeFrameIterativeStep * timeFrame);
-					}
-		        	  
-		          }, 700, 50);
-			}
-			
-			@Override
-			public void mouseExited(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-			}
-			
-			@Override
-			public void mouseEntered(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-			}
-			
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-			}
-		});
         
-        broaderButton.addMouseListener(new MouseListener() 
-        {
-			@Override
-			public void mouseReleased(MouseEvent arg0) 
-			{
-				timer.cancel();
-			}
-			
-			@Override
-			public void mousePressed(MouseEvent arg0) 
-			{
-				double timeFrame = linkedVisualization.getTimeFrame();
-            	linkedVisualization.setTimeFrame(timeFrame - timeFrameStep * timeFrame);
-				timer = new Timer();
-				timer.schedule( new TimerTask() {
-
-					@Override
-					public void run() 
-					{
-						double timeFrame = linkedVisualization.getTimeFrame();
-		            	linkedVisualization.setTimeFrame(timeFrame - timeFrameIterativeStep * timeFrame);
-					}
-		        	  
-		          }, 700, 50);
-			}
-			
-			@Override
-			public void mouseExited(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-			}
-			
-			@Override
-			public void mouseEntered(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-			}
-			
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-			}
-		});
         
-//        broaderButton.addActionListener(new ActionListener() 
-//        {
-//            public void actionPerformed(ActionEvent e) 
-//            {
-//            	double timeFrame = linkedVisualization.getTimeFrame();
-//            	linkedVisualization.setTimeFrame(timeFrame - timeFrameStep);
-//            }  
-//        });
+        
         
         closeButton.addActionListener(new ActionListener() 
         {

@@ -2,6 +2,7 @@
 public class Vec2{
 
 	public double x, y;
+	public int id;
 	
 	public Vec2() 
 	{
@@ -12,9 +13,21 @@ public class Vec2{
 		this.x = x;
 		this.y = y;
 	}
+	
+	public Vec2(double x, double y, int id)
+	{
+		this.x=x;
+		this.y=y;
+		this.id=id;
+	}
 
 	public Vec2(Vec2 other) {
 		set(other);
+	}
+	
+	public int getID()
+	{
+		return id;
 	}
 	
 	public Vec2 set(double x, double y)
