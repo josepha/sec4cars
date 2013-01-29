@@ -1,3 +1,4 @@
+import java.awt.Dimension;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -48,13 +49,13 @@ public class GraphVisualization extends AbstractVisualization {
 	private GLUT glut;
 
 	private Iterator<Vec2> iterPoints;
+	private ParameterView linkedView;
 
 	// constructors
 	// public ParameterGraph(double minValue, double maxValue, double
 	// optimalValue, double timeFrame, GraphColor bgColor, GraphColor axisColor,
 	// GraphColor goodColor, GraphColor badColor)
-	public GraphVisualization(double minValue, double maxValue,
-			double optimalValue, double timeFrame, GraphColor bgColor,
+	public GraphVisualization(double minValue, double maxValue, double optimalValue, double timeFrame, GraphColor bgColor,
 			GraphColor axisColor, GraphColor graphColor) {
 		// maxValue has to be larger than minValue
 		assert (maxValue >= minValue && optimalValue >= minValue && optimalValue <= maxValue);
@@ -83,27 +84,27 @@ public class GraphVisualization extends AbstractVisualization {
 	}
 
 	// default colors
-	public GraphVisualization(double minValue, double maxValue,
-			double optimalValue, double timeFrame) {
+	public GraphVisualization(double minValue, double maxValue,	double optimalValue, double timeFrame)
+	{
 		this(minValue, maxValue, optimalValue, timeFrame, GraphColor.BLACK,
 				GraphColor.DARK_GRAY, GraphColor.random());
 	}
 
 	// centered around y-axis
-	public GraphVisualization(double range, double optimalValue,
-			double timeFrame, GLUT glut_) {
+	public GraphVisualization(double range, double optimalValue,double timeFrame, GLUT glut_, ParameterView linkedView)
+	{
 		this(-range / 2, range / 2, optimalValue, timeFrame);
 		this.glut = glut_;
-
+		this.linkedView = linkedView;
 	}
 
 	// setters
-	public void setMinValue(double minValue, int i) {
+	public void setMinValue(double minValue, int id) {
 		this.minValue = minValue * (1 + scaleOffset);
 		updateInternals();
 	}
 
-	public void setMaxValue(double maxValue, int i) {
+	public void setMaxValue(double maxValue, int id) {
 		this.maxValue = maxValue;
 		updateInternals();
 	}
@@ -139,17 +140,19 @@ public class GraphVisualization extends AbstractVisualization {
 		drawText();
 	}
 
-	private void drawText() {
-
-		gl.glRasterPos2f(0.75f, 0.92f);
+	private void drawText()
+	{
+		Dimension glPanleSize = linkedView.getGLPanelSize();		
+	
+		gl.glRasterPos2f((glPanleSize.width/2.0f-100)/(glPanleSize.width/2.0f), (glPanleSize.height/2.0f-15)/(glPanleSize.height/2.0f));
 		graphColor.setDrawColor(gl);
 		if (!points.isEmpty()) {
 			glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, points.getFirst().y
 					+ "");
 		}
-		gl.glRasterPos2f(-0.98f, 0.92f);
+		gl.glRasterPos2f(-(glPanleSize.width/2.0f-5)/(glPanleSize.width/2.0f), (glPanleSize.height/2.0f-15)/(glPanleSize.height/2.0f));
 		glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, maxValue + "");
-		gl.glRasterPos2f(-0.98f, -0.97f);
+		gl.glRasterPos2f(-(glPanleSize.width/2.0f-5)/(glPanleSize.width/2.0f), -(glPanleSize.height/2.0f-5)/(glPanleSize.height/2.0f));
 		glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, minValue + "");
 	}
 
@@ -247,7 +250,8 @@ public class GraphVisualization extends AbstractVisualization {
 		// TODO: implement
 	}
 
-	public void addValue(float newValue) {
+	@Override
+	public void addValue(float newValue, int x) {
 		timer.update();
 
 		double delta = timer.deltaTime();
@@ -332,10 +336,7 @@ public class GraphVisualization extends AbstractVisualization {
 		this.timeFrame = range;
 	}
 
-	@Override
-	public void addValue(float f, int i) {
-		// TODO Auto-generated method stub
-		
-	}
+
+
 
 }

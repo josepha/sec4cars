@@ -262,7 +262,7 @@ public class ParameterView extends AbstractView
         glPanel.setAlignmentX(Box.LEFT_ALIGNMENT);
         layeredPane.setMinimumSize(new Dimension(50,300));
         layeredPane.setPreferredSize(new Dimension(400,300));
-        layeredPane.setMaximumSize(new Dimension(1500,300));
+        layeredPane.setMaximumSize(new Dimension(2000,300));
         //TODO: find out how to render label on top of view
 //        JLabel testLabel = new JLabel("TEST");
 //        layeredPane.add(testLabel);
@@ -600,10 +600,10 @@ public class ParameterView extends AbstractView
         });
 	}	
 	
-	private void update()
-	{
-		
-	}
+//	private void update()
+//	{
+//		
+//	}
 	
 	public float updateAndGetPriority()
 	{
@@ -620,5 +620,10 @@ public class ParameterView extends AbstractView
 	public String getID()
 	{
 		return ID;
+	}
+	
+	public Dimension getGLPanelSize()
+	{
+		return glPanel.getSize();
 	}
 }

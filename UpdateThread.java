@@ -57,7 +57,7 @@ public class UpdateThread extends Thread {
 					
 					linkedMainView.logValue(paraView.getID(), newValue+"");
 					
-					graphVisu.addValue(newValue);
+					graphVisu.addValue(newValue,0);
 				}
 				else //singleview
 				{

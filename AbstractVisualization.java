@@ -19,7 +19,6 @@ public abstract class AbstractVisualization implements GLEventListener
 	protected AbstractView containingView = null;
 	protected boolean autoAdjust = true;
 	
-	public abstract void addValue(float f);
 	public abstract void addValue(float f, int i);
 	
 	// enable or disable range autoadjust

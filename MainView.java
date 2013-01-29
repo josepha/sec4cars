@@ -1,7 +1,6 @@
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
@@ -175,32 +174,23 @@ public class MainView extends JFrame
 	{
 		viewIsReady=false;
 		if(treePaths!=null && treePaths.length>0)			
-		{
-			EventQueue.invokeLater(new Runnable() {
-	            public void run() {
-	                try {
-	                	GraphVisualizationMulti multiGraph = new GraphVisualizationMulti(treePaths.length, 2.5,0,45,glut);
-	        			
-	        			ParameterViewMultiGraphPanel viewGraphPanel = new ParameterViewMultiGraphPanel();        			
-	        			graphPanel.add(viewGraphPanel);
-	        			viewGraphPanel.setVisualization(multiGraph);
-	        			
-	        			for(int i=0;i<treePaths.length;i++)
-	        			{
-	        				MessblockTreeNode node = (MessblockTreeNode)treePaths[i].getLastPathComponent();        			
-	        				ParameterViewMulti panel = new ParameterViewMulti(node.toString(),treePaths.length, node.getNodeID(),i);
-	        				panel.setVisualization(multiGraph);
-	        				panel.setMinimumSize(new Dimension(500, 80));
-	        				panel.setMaximumSize(new Dimension(1500, 80));
-	        				graphPanel.add(panel);
-	        				//graphPanel.setMinimumSize(new Dimension(500, i * 80 + 550));      	
-	        			}      
-	        			
-	                } catch (Exception e) {
-	                    e.printStackTrace();
-	                }
-	            }
-			});
+		{	
+			ParameterViewMultiGraphPanel viewGraphPanel = new ParameterViewMultiGraphPanel();       
+			GraphVisualizationMulti multiGraph = new GraphVisualizationMulti(treePaths.length, 2.5,0,45,glut,viewGraphPanel);
+			graphPanel.add(viewGraphPanel);
+			viewGraphPanel.setVisualization(multiGraph);
+			
+			for(int i=0;i<treePaths.length;i++)
+			{
+				MessblockTreeNode node = (MessblockTreeNode)treePaths[i].getLastPathComponent();        			
+				ParameterViewMulti panel = new ParameterViewMulti(node.toString(),treePaths.length, node.getNodeID(),i);
+				panel.setVisualization(multiGraph);
+				panel.setMinimumSize(new Dimension(500, 60));
+				panel.setMaximumSize(new Dimension(1500, 60));
+				graphPanel.add(panel);
+				//graphPanel.setMinimumSize(new Dimension(500, i * 80 + 550));      	
+			} 
+
 			graphPanel.updateUI();
 			activeTreePaths=treePaths;			
 		}
@@ -216,7 +206,7 @@ public class MainView extends JFrame
 			{
 				MessblockTreeNode node = (MessblockTreeNode)treePaths[i].getLastPathComponent();        			
 				ParameterView panel = new ParameterView(node.toString(),treePaths.length, node.getNodeID());
-				panel.setVisualization(new GraphVisualization(2.5, 0, 45, glut));
+				panel.setVisualization(new GraphVisualization(2.5, 0, 45, glut,panel));
 				panel.setMinimumSize(new Dimension(500, 300));
 				graphPanel.add(panel);
 				graphPanel.setMinimumSize(new Dimension(500, i * 400));      	

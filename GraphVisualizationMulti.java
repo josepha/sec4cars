@@ -1,4 +1,4 @@
-import java.util.ConcurrentModificationException;
+import java.awt.Dimension;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -52,6 +52,8 @@ public class GraphVisualizationMulti extends AbstractVisualization
 	
 	private Iterator<Vec2> iterPoints;
 	private int bufferCount;
+	
+	private ParameterViewMultiGraphPanel linkedView;
 
 	// constructors
 	//public ParameterGraph(double minValue, double maxValue, double optimalValue, double timeFrame, GraphColor bgColor, GraphColor axisColor, GraphColor goodColor, GraphColor badColor)
@@ -109,10 +111,11 @@ public class GraphVisualizationMulti extends AbstractVisualization
 	}
 	
 	// centered around y-axis
-	public GraphVisualizationMulti(int anzahl, double range, double optimalValue, double timeFrame, GLUT glut_)
+	public GraphVisualizationMulti(int anzahl, double range, double optimalValue, double timeFrame, GLUT glut_, ParameterViewMultiGraphPanel linkedView)
 	{		
 		this(-range/2, range/2, optimalValue, timeFrame, anzahl);
-		this.glut=glut_;				
+		this.glut=glut_;	
+		this.linkedView=linkedView;
 	}
 
 	
@@ -167,17 +170,20 @@ public class GraphVisualizationMulti extends AbstractVisualization
 	
 	private void drawText()
 	{		
-		
-//		gl.glRasterPos2f(0.75f, 0.92f);
-//		graphColor.setDrawColor(gl);		
-//		if(!points.isEmpty())
-//		{
-//			glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, points.getFirst().y+"");
-//		}		
-//		gl.glRasterPos2f(-0.98f, 0.92f);
-//		glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, maxValue+"");
-//		gl.glRasterPos2f(-0.98f, -0.97f);
-//		glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, minValue+"");
+		Dimension glPanleSize = linkedView.getGLPanelSize();
+		for(int i = 0; i<anzahl; i++)
+		{
+			graphColor[i].setDrawColor(gl);		
+//			gl.glRasterPos2f((glPanleSize.width/2.0f-100)/(glPanleSize.width/2.0f), (glPanleSize.height/2.0f-15-(i*15))/(glPanleSize.height/2.0f));			
+//			if(!points.isEmpty())
+//			{
+//				glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, points.getFirst().y+"");
+//			}		
+			gl.glRasterPos2f(-(glPanleSize.width/2.0f-5)/(glPanleSize.width/2.0f), (glPanleSize.height/2.0f-15-(i*15))/(glPanleSize.height/2.0f));
+			glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, maxValue[i]+"");
+			gl.glRasterPos2f(-(glPanleSize.width/2.0f-5)/(glPanleSize.width/2.0f), -(glPanleSize.height/2.0f-5-(i*15))/(glPanleSize.height/2.0f));
+			glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, minValue[i]+"");
+		}
 	}
 	
 	// draw graph as line strip
@@ -392,10 +398,6 @@ public class GraphVisualizationMulti extends AbstractVisualization
 		this.timeFrame = range;
 	}
 
-	@Override
-	public void addValue(float f) {
-		// TODO Auto-generated method stub
-		
-	}
+
 
 }

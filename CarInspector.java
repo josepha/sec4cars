@@ -1,5 +1,4 @@
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
+
 
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;

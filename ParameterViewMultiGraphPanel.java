@@ -46,7 +46,7 @@ public class ParameterViewMultiGraphPanel extends AbstractView
 	
 
 	
-	private String ID;
+	//private String ID;
 	
 	public void setVisualization(AbstractVisualization visualization)
 	{		
@@ -237,10 +237,10 @@ public class ParameterViewMultiGraphPanel extends AbstractView
 
 	}	
 	
-	private void update()
-	{
-	
-	}
+//	private void update()
+//	{
+//	
+//	}
 
 	@Override
 	public void resetPriority() {
@@ -259,9 +259,11 @@ public class ParameterViewMultiGraphPanel extends AbstractView
 		// TODO Auto-generated method stub
 		return null;
 	}	
-
 	
-
+	public Dimension getGLPanelSize()
+	{
+		return glPanel.getSize();
+	}
 	
 
 }

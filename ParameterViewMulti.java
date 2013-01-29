@@ -3,8 +3,6 @@
 // TODO: extend
 
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -13,12 +11,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.Timer;
-import java.util.TimerTask;
 
-import javax.media.opengl.GLCapabilities;
-import javax.media.opengl.GLProfile;
-import javax.media.opengl.awt.GLJPanel;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -27,13 +21,11 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-import com.jogamp.opengl.util.FPSAnimator;
 
 // TODO implement stuff belonging to the view
 public class ParameterViewMulti extends AbstractView
@@ -45,7 +37,7 @@ public class ParameterViewMulti extends AbstractView
 	
     //*********************************************************************
 	
-	private Timer timer;
+	//private Timer timer;
 	
 	// set up GUI components
 	
@@ -57,10 +49,10 @@ public class ParameterViewMulti extends AbstractView
 	private JPanel buttonsPanel;
 	private JPanel titlePanel;
 	// button for closing panel
-	private JButton closeButton;
+	//private JButton closeButton;
 	// buttons for switching view order
-	private JButton switchUpButton;
-	private JButton switchDownButton;
+	//private JButton switchUpButton;
+	//private JButton switchDownButton;
 	// buttons and label for setting priority
 	private JButton priorityPlusButton;
 	private JButton priorityMinusButton;
@@ -68,7 +60,7 @@ public class ParameterViewMulti extends AbstractView
 	
 	private JCheckBox autoAdjustBox;
 	
-	private JLayeredPane layeredPane;
+	//private JLayeredPane layeredPane;
 	
 	// value range labels
 	private JTextField minVal;
@@ -87,7 +79,7 @@ public class ParameterViewMulti extends AbstractView
 	private int activeViewCount;	//aktive graphPanel
 	
 	private String ID;
-	private int position;
+	private int position = 0;
 	
 	public void setVisualization(AbstractVisualization visualization)
 	{		
@@ -114,7 +106,7 @@ public class ParameterViewMulti extends AbstractView
 		maxVal.setText( String.format("%.3f", linkedVisualization.getMaxValue(position)) );
 	}
 
-	public ParameterViewMulti(String name, int count, String panelID, int position) 
+	public ParameterViewMulti(String name, int count, String panelID, final int position) 
 	{
 		// parameter view setup
 		super();
@@ -209,11 +201,11 @@ public class ParameterViewMulti extends AbstractView
         buttonsPanel.setPreferredSize(new Dimension(400, 35));
         buttonsPanel.setMaximumSize(new Dimension(1500, 35));
         // set up panel holding title and close button
- 		titlePanel = new JPanel();
- 		titlePanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.LINE_AXIS));
- 		titlePanel.setMinimumSize(new Dimension(50,35));
- 		titlePanel.setPreferredSize(new Dimension(400, 35));
- 		titlePanel.setMaximumSize(new Dimension(1500, 35));
+// 		titlePanel = new JPanel();
+// 		titlePanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.LINE_AXIS));
+// 		titlePanel.setMinimumSize(new Dimension(50,35));
+// 		titlePanel.setPreferredSize(new Dimension(400, 35));
+// 		titlePanel.setMaximumSize(new Dimension(1500, 35));
         // graph color label
         colorLabel = new JLabel();
         colorLabel.setOpaque(true);
@@ -260,7 +252,7 @@ public class ParameterViewMulti extends AbstractView
 //        //testLabel.setAlignmentX(Box.CENTER_ALIGNMENT);
 //        //TODO: add layered labels of min, max and units
 //        add(layeredPane);
-        buttonsPanel.setAlignmentX(RIGHT_ALIGNMENT);
+        //buttonsPanel.setAlignmentX(RIGHT_ALIGNMENT);
         add(Box.createHorizontalGlue());
         buttonsPanel.add(Box.createHorizontalStrut(minDist));
         buttonsPanel.add(colorLabel);
@@ -407,7 +399,7 @@ public class ParameterViewMulti extends AbstractView
 			{
 				if(arg0.getKeyCode() == KeyEvent.VK_ENTER)
 				{
-					linkedVisualization.setMinValue(Double.parseDouble(minVal.getText().replace(',', '.')),0);
+					linkedVisualization.setMinValue(Double.parseDouble(minVal.getText().replace(',', '.')),position);
 					// disable auto adjust because value was probably changed on purpose
 					autoAdjustBox.setSelected(false);
 					linkedVisualization.setAutoAdjust(false);
@@ -432,8 +424,8 @@ public class ParameterViewMulti extends AbstractView
 			public void keyReleased(KeyEvent arg0) 
 			{
 				if(arg0.getKeyCode() == KeyEvent.VK_ENTER)
-				{
-					linkedVisualization.setMaxValue(Double.parseDouble(maxVal.getText().replace(',', '.')),0);
+				{					
+					linkedVisualization.setMaxValue(Double.parseDouble(maxVal.getText().replace(',', '.')),position);
 					// disable auto adjust because value was probably changed on purpose
 					autoAdjustBox.setSelected(false);
 					linkedVisualization.setAutoAdjust(false);
@@ -485,8 +477,8 @@ public class ParameterViewMulti extends AbstractView
 		});
         
         //TODO: adjust constant
-        final double timeFrameStep = 0.1;
-        final double timeFrameIterativeStep = 0.05;
+        //final double timeFrameStep = 0.1;
+        //final double timeFrameIterativeStep = 0.05;
         
         
         
@@ -513,10 +505,10 @@ public class ParameterViewMulti extends AbstractView
         });
 	}	
 	
-	private void update()
-	{
-		
-	}
+//	private void update()
+//	{
+//		
+//	}
 	
 	public float updateAndGetPriority()
 	{
